@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
@@ -28,6 +29,9 @@ public class WaveformView extends View {
 
     public static final int DIRECTION_LEFT_TO_RIGHT = 1, DIRECTION_RIGHT_TO_LEFT = -1;
 
+    @IntDef({DIRECTION_LEFT_TO_RIGHT, DIRECTION_RIGHT_TO_LEFT})
+    public @interface Direction{}
+
     private boolean debug = false;
 
     private byte[] mByteArray;
@@ -41,7 +45,7 @@ public class WaveformView extends View {
 
     private int mMaxValue, mMinValue, mAmpUnit = 1;
 
-    private int mDirection = DIRECTION_LEFT_TO_RIGHT;
+    private @Direction int mDirection = DIRECTION_LEFT_TO_RIGHT;
 
     private MediaRecorder mRecorder;
 
@@ -235,7 +239,7 @@ public class WaveformView extends View {
         }
     }
 
-    public void setDirection (int direction) {
+    public void setDirection (@Direction int direction) {
         mDirection = direction;
     }
 

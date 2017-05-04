@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="WaveformView">
+        <attr name="barColor" format="color|reference"/>
+        <attr name="barWidth" format="dimension|reference"/>
+        <attr name="gapWidth" format="dimension|reference"/>
+        <attr name="period" format="integer|reference"/>
+        <attr name="direction" format="enum">
+            <enum name="left_to_right" value="1"/>
+            <enum name="right_to_left" value="-1"/>
+        </attr>
+        <attr name="maxValue" format="integer|reference"/>
+        <attr name="minValue" format="integer|reference"/>
+        <attr name="maxDuration" format="integer|reference"/>
+    </declare-styleable>
+</resources>

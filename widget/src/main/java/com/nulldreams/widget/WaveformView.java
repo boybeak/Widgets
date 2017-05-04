@@ -215,6 +215,7 @@ public class WaveformView extends View {
     }*/
 
     public void attachMediaRecorder(MediaRecorder recorder) {
+        reset();
         mRecorder = recorder;
         //mLastNewBarTime = SystemClock.elapsedRealtime();
         post(mAmpRun);
@@ -224,6 +225,13 @@ public class WaveformView extends View {
     public void detachedMediaRecorder () {
         removeCallbacks(mAmpRun);
         mRecorder = null;
+        mByteArray = null;
+    }
+
+    private void reset () {
+        refreshByteArray();
+        mCursor = 0;
+        mLastNewBarTime = 0;
     }
 
     private void putInt (int amp) {
@@ -264,7 +272,10 @@ public class WaveformView extends View {
     }
 
     private void refreshByteArray () {
-        mByteArray = new byte[(int)(mMaxDuration / mPeriod)];
+        int length = (int)(mMaxDuration / mPeriod);
+        if (mByteArray == null || mByteArray.length != length) {
+            mByteArray = new byte[length];
+        }
         for (int i = 0; i < mByteArray.length; i++) {
             if (mByteArray[i] <= 0) {
                 mByteArray[i] = (byte) mMinValue;
@@ -273,9 +284,9 @@ public class WaveformView extends View {
     }
 
     private void refreshAmpUnit () {
-        int minus = mMaxValue - mMinValue;
-        mAmpUnit = AMP_MAX / minus;
-        mHeightUnit = (float) (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / minus;
+        //int minus =  - mMinValue;
+        mAmpUnit = AMP_MAX / mMaxValue;
+        mHeightUnit = (float) (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / mMaxValue;
     }
 
     public void setDebug(boolean debug) {

@@ -23,7 +23,7 @@ public class WaveformView extends View {
 
     private static final String TAG = WaveformView.class.getSimpleName();
 
-    private static final int AMP_MAX = 32767;
+    private static final int AMP_MAX = /*32767*/12000;
 
     private static final int DEFAULT_BAR_WIDTH_DP = 8, DEFAULT_GAP_WIDTH_DP = 2,
             DEFAULT_PERIOD = 1000, DEFAULT_MAX_DURATION = 60 * 60 * 1000;
@@ -244,6 +244,8 @@ public class WaveformView extends View {
         if (mCursor < mByteArray.length - 1) {
             if (b < mMinValue) {
                 b = (byte) mMinValue;
+            } else if (b > mMaxValue) {
+                b = (byte) mMaxValue;
             }
             mByteArray[mCursor + 1] = b;
         }

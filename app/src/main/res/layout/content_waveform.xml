@@ -11,7 +11,7 @@
     <com.nulldreams.widget.WaveformView
         android:id="@+id/waveform_view"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="48dp"
         android:padding="8dp"
         android:layout_marginTop="20dp"
         android:background="@android:color/darker_gray"

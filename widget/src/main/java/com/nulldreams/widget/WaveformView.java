@@ -119,6 +119,7 @@ public class WaveformView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         mCount = (int) Math.ceil(getMeasuredWidth() / (mBarWidth + mGapWidth));
         mMovePeriod = (int)(mPeriod / (mBarWidth + mGapWidth));
         refreshAmpUnit();
@@ -177,8 +178,9 @@ public class WaveformView extends View {
                 canvas.drawRect(left, bottom - (mByteArray[i] * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
-                canvas.drawText(i + "", left, bottom - 30, mTextPaint);
-                canvas.drawText(mByteArray[i] + "", left, bottom - 15, mTextPaint);
+                float b = (getHeight() - getPaddingBottom() - getPaddingTop()) / 2;
+                canvas.drawText(i + "", left, b - 10, mTextPaint);
+                canvas.drawText(mByteArray[i] + "", left, b + 10, mTextPaint);
             }
             offset++;
         }
@@ -205,8 +207,9 @@ public class WaveformView extends View {
                 canvas.drawRect(left, bottom - (mByteArray[i] * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
-                canvas.drawText(i + "", left, bottom - 30, mTextPaint);
-                canvas.drawText(mByteArray[i] + "", left, bottom - 15, mTextPaint);
+                float b = (getHeight() - getPaddingBottom() - getPaddingTop()) / 2;
+                canvas.drawText(i + "", left, b - 10, mTextPaint);
+                canvas.drawText(mByteArray[i] + "", left, b + 10, mTextPaint);
             }
             offset++;
         }

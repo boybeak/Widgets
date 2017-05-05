@@ -13,6 +13,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -118,7 +119,23 @@ public class WaveformView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        final int height = MeasureSpec.getSize(heightMeasureSpec);
+
+        if (MeasureSpec.AT_MOST == heightMode) {
+            Log.v(TAG, "AT_MOST");
+        } else if (MeasureSpec.EXACTLY == heightMode) {
+            Log.v(TAG, "EXACTLY");
+        } else if (MeasureSpec.UNSPECIFIED == heightMode) {
+            Log.v(TAG, "UNSPECIFIED");
+        }
+
+        Log.v(TAG, "onMeasure heightMode=" + heightMode + " height=" + height);
+
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        Log.v(TAG, "onMeasure mWidth=" + getMeasuredWidth() + " mHeight=" + getMeasuredHeight());
 
         mCount = (int) Math.ceil(getMeasuredWidth() / (mBarWidth + mGapWidth));
         mMovePeriod = (int)(mPeriod / (mBarWidth + mGapWidth));
@@ -143,6 +160,11 @@ public class WaveformView extends View {
 
         if (mCursor >= mByteArray.length) {
             return;
+        }
+
+        if (debug) {
+            String s = "ViewWid=" + getWidth() + " ViewHei=" + getHeight() + " mAmpUnit=" + mAmpUnit + " mHeightUnit=" + mHeightUnit;
+            canvas.drawText(s, 0, 10, mTextPaint);
         }
 
         if (mDirection == DIRECTION_LEFT_TO_RIGHT) {

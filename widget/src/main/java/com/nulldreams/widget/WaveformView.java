@@ -109,6 +109,7 @@ public class WaveformView extends View {
             setPeriod(array.getInt(R.styleable.WaveformView_period, DEFAULT_PERIOD));
             setMaxDuration(array.getInt(R.styleable.WaveformView_maxDuration, DEFAULT_MAX_DURATION));
             setDirection(array.getInteger(R.styleable.WaveformView_direction, DIRECTION_LEFT_TO_RIGHT));
+            setDebug(array.getBoolean(R.styleable.WaveformView_debug, false));
             array.recycle();
         } else {
             mPaint.setColor(Color.GREEN);
@@ -125,6 +126,7 @@ public class WaveformView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
         if (mRecorder != null) {
             drawBars(canvas);
             postInvalidate();
@@ -157,13 +159,13 @@ public class WaveformView extends View {
     private void drawFromLeftToRight (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
         for (int i = mCursor; i > mCursor - mCount && i > 0; i--) {
-            float left = getLeft() + getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth + deltaX;
+            float left = getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth + deltaX;
             float right = left + mBarWidth;
-            float maxRight = getRight() - getPaddingRight();
+            float maxRight = getWidth() - getPaddingRight();
             if (right > maxRight) {
                 right = maxRight;
             }
-            float bottom = getBottom() - getPaddingBottom();
+            float bottom = getHeight() - getPaddingBottom();
             if (offset == 0) {
                 float full = mByteArray[i] * mHeightUnit;
                 float remain = full * ((float)deltaTime / mPeriod) * 3;
@@ -175,8 +177,8 @@ public class WaveformView extends View {
                 canvas.drawRect(left, bottom - (mByteArray[i] * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
-                canvas.drawText(i + "", left, getBottom() - 30, mTextPaint);
-                canvas.drawText(mByteArray[i] + "", left, getBottom() - 15, mTextPaint);
+                canvas.drawText(i + "", left, bottom - 30, mTextPaint);
+                canvas.drawText(mByteArray[i] + "", left, bottom - 15, mTextPaint);
             }
             offset++;
         }
@@ -185,13 +187,13 @@ public class WaveformView extends View {
     private void drawFromRightToLeft (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
         for (int i = mCursor; i > mCursor - mCount && i > 0; i--) {
-            float right = getRight() - getPaddingRight() - (mGapWidth + mBarWidth) * offset - mGapWidth - deltaX;
+            float right = getWidth() - getPaddingRight() - (mGapWidth + mBarWidth) * offset - mGapWidth - deltaX;
             float left = right - mBarWidth;
-            float maxLeft = getLeft() + getPaddingLeft();
+            float maxLeft = getPaddingLeft();
             if (left < maxLeft) {
                 left = maxLeft;
             }
-            float bottom = getBottom() - getPaddingBottom();
+            float bottom = getHeight() - getPaddingBottom();
             if (offset == 0) {
                 float full = mByteArray[i] * mHeightUnit;
                 float remain = full * ((float)deltaTime / mPeriod) * 3;
@@ -203,8 +205,8 @@ public class WaveformView extends View {
                 canvas.drawRect(left, bottom - (mByteArray[i] * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
-                canvas.drawText(i + "", left, getBottom() - 30, mTextPaint);
-                canvas.drawText(mByteArray[i] + "", left, getBottom() - 15, mTextPaint);
+                canvas.drawText(i + "", left, bottom - 30, mTextPaint);
+                canvas.drawText(mByteArray[i] + "", left, bottom - 15, mTextPaint);
             }
             offset++;
         }

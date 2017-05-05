@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:padding="8dp"
+        android:layout_marginTop="20dp"
         android:background="@android:color/darker_gray"
         app:barColor="@android:color/holo_green_dark"
         app:barWidth="8dp"

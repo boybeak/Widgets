@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.ColorRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -82,10 +83,6 @@ public class WaveformView extends View {
 
     private void initThis (Context context, @Nullable AttributeSet attrs) {
 
-        mPaint = new Paint();
-        mTextPaint = new Paint();
-        mTextPaint.setColor(Color.BLACK);
-
         final float density = context.getResources().getDisplayMetrics().density;
 
         final float barWidthDef = density * DEFAULT_BAR_WIDTH_DP;
@@ -94,8 +91,8 @@ public class WaveformView extends View {
         if (attrs != null) {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.WaveformView);
             mBarColor = array.getColor(R.styleable.WaveformView_barColor, Color.GREEN);
-            mPaint.setColor(mBarColor);
             mBarWidth = array.getDimensionPixelSize(R.styleable.WaveformView_barWidth, 0);
+            setBarColor(array.getColor(R.styleable.WaveformView_barColor, Color.GREEN));
 
             if (mBarWidth == 0) {
                 mBarWidth = barWidthDef;
@@ -111,9 +108,12 @@ public class WaveformView extends View {
             setDirection(array.getInteger(R.styleable.WaveformView_direction, DIRECTION_LEFT_TO_RIGHT));
             setDebug(array.getBoolean(R.styleable.WaveformView_debug, false));
             array.recycle();
-        } else {
-            mPaint.setColor(Color.GREEN);
         }
+
+        mPaint = new Paint();
+        mTextPaint = new Paint();
+        mPaint.setColor(mBarColor);
+        mTextPaint.setColor(Color.BLACK);
     }
 
     @Override
@@ -246,6 +246,17 @@ public class WaveformView extends View {
                 b = (byte) mMinValue;
             }
             mByteArray[mCursor + 1] = b;
+        }
+    }
+
+    public void setBarColorResource (@ColorRes int colorRes) {
+        setBarColor(getContext().getResources().getColor(colorRes));
+    }
+
+    public void setBarColor (int barColor) {
+        this.mBarColor = barColor;
+        if (this.mPaint != null) {
+            this.mPaint.setColor(mBarColor);
         }
     }
 

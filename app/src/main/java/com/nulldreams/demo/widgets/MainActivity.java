@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         mAdapter = new DelegateAdapter(this);
         mRv.setAdapter(mAdapter);
+
     }
 
     @Override

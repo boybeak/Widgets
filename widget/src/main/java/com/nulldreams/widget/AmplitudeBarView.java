@@ -14,23 +14,30 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
+
+import com.nulldreams.widget.decoration.BarDecoration;
+import com.nulldreams.widget.decoration.DefaultDecoration;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 
 /**
  * Created by boybe on 2017/5/2.
  */
 
-public class WaveformView extends View {
+public class AmplitudeBarView extends AmplitudeView {
 
-    private static final String TAG = WaveformView.class.getSimpleName();
+    private static final String TAG = AmplitudeBarView.class.getSimpleName();
 
-    private static final int AMP_MAX = /*32767*/12000;
+    private static final int DEFAULT_AMP_MAX = /*32767*/18000;
 
     private static final int DEFAULT_BAR_WIDTH_DP = 8, DEFAULT_GAP_WIDTH_DP = 2,
             DEFAULT_PERIOD = 1000, DEFAULT_MAX_DURATION = 60 * 60 * 1000;
 
     public static final int DIRECTION_LEFT_TO_RIGHT = 1, DIRECTION_RIGHT_TO_LEFT = -1;
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({DIRECTION_LEFT_TO_RIGHT, DIRECTION_RIGHT_TO_LEFT})
     public @interface Direction{}
 
@@ -38,46 +45,36 @@ public class WaveformView extends View {
 
     private byte[] mByteArray;
 
-    private int mCursor = 0, mCount = 50;
+    private int mCursor = 0, mDrawBarBufSize = 50;
     private float mBarWidth, mGapWidth, mHeightUnit;
-    private long mPeriod = DEFAULT_PERIOD, mMovePeriod = 20, mLastNewBarTime = 0,
+    private long /*mPeriod = DEFAULT_PERIOD,*/ mMovePeriod = 20, mLastNewBarTime = 0,
             mMaxDuration = DEFAULT_MAX_DURATION;
 
     private int mBarColor;
 
-    private int mMaxValue, mMinValue, mAmpUnit = 1;
+    private int mMaxValue, mMinValue, mAmpUnit = 1, mMaxAmp;
 
     private @Direction int mDirection = DIRECTION_LEFT_TO_RIGHT;
 
-    private MediaRecorder mRecorder;
-
     private Paint mPaint, mTextPaint;
 
-    private Runnable mAmpRun = new Runnable() {
-        @Override
-        public void run() {
-            if (mAmpRun != null) {
-                putInt(mRecorder.getMaxAmplitude());
-                postDelayed(this, mPeriod);
-            }
-        }
-    };
+    private BarDecoration mDecoration = new DefaultDecoration();
 
-    public WaveformView(Context context) {
+    public AmplitudeBarView(Context context) {
         this(context, null);
     }
 
-    public WaveformView(Context context, @Nullable AttributeSet attrs) {
+    public AmplitudeBarView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public WaveformView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public AmplitudeBarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initThis(context, attrs);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public WaveformView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public AmplitudeBarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initThis(context, attrs);
     }
@@ -90,24 +87,24 @@ public class WaveformView extends View {
         final float gapWidthDef = density * DEFAULT_GAP_WIDTH_DP;
 
         if (attrs != null) {
-            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.WaveformView);
-            mBarColor = array.getColor(R.styleable.WaveformView_barColor, Color.GREEN);
-            mBarWidth = array.getDimensionPixelSize(R.styleable.WaveformView_barWidth, 0);
-            setBarColor(array.getColor(R.styleable.WaveformView_barColor, Color.GREEN));
+            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeBarView);
+            mBarColor = array.getColor(R.styleable.AmplitudeBarView_barColor, Color.GREEN);
+            mBarWidth = array.getDimensionPixelSize(R.styleable.AmplitudeBarView_barWidth, 0);
+            setBarColor(array.getColor(R.styleable.AmplitudeBarView_barColor, Color.GREEN));
 
             if (mBarWidth == 0) {
                 mBarWidth = barWidthDef;
             }
-            mGapWidth = array.getDimensionPixelSize(R.styleable.WaveformView_gapWidth, 0);
+            mGapWidth = array.getDimensionPixelSize(R.styleable.AmplitudeBarView_gapWidth, 0);
             if (mGapWidth == 0) {
                 mGapWidth = gapWidthDef;
             }
-            setMaxValue(array.getInt(R.styleable.WaveformView_maxValue, Byte.MAX_VALUE));
-            setMinValue(array.getInt(R.styleable.WaveformView_minValue, 0));
-            setPeriod(array.getInt(R.styleable.WaveformView_period, DEFAULT_PERIOD));
-            setMaxDuration(array.getInt(R.styleable.WaveformView_maxDuration, DEFAULT_MAX_DURATION));
-            setDirection(array.getInteger(R.styleable.WaveformView_direction, DIRECTION_LEFT_TO_RIGHT));
-            setDebug(array.getBoolean(R.styleable.WaveformView_debug, false));
+            setAmpMax(array.getInt(R.styleable.AmplitudeBarView_maxAmplitude, DEFAULT_AMP_MAX));
+            setMaxValue(array.getInt(R.styleable.AmplitudeBarView_maxValue, Byte.MAX_VALUE));
+            setMinValue(array.getInt(R.styleable.AmplitudeBarView_minValue, 0));
+            setMaxDuration(array.getInt(R.styleable.AmplitudeBarView_maxDuration, DEFAULT_MAX_DURATION));
+            setDirection(array.getInteger(R.styleable.AmplitudeBarView_direction, DIRECTION_LEFT_TO_RIGHT));
+            setDebug(array.getBoolean(R.styleable.AmplitudeBarView_debug, false));
             array.recycle();
         }
 
@@ -137,17 +134,28 @@ public class WaveformView extends View {
 
         Log.v(TAG, "onMeasure mWidth=" + getMeasuredWidth() + " mHeight=" + getMeasuredHeight());
 
-        mCount = (int) Math.ceil(getMeasuredWidth() / (mBarWidth + mGapWidth));
-        mMovePeriod = (int)(mPeriod / (mBarWidth + mGapWidth));
+        mDrawBarBufSize = (int) Math.ceil(getMeasuredWidth() / (mBarWidth + mGapWidth));
+        mMovePeriod = (int)(getPeriod() / (mBarWidth + mGapWidth));
         refreshAmpUnit();
+    }
+
+    @Override
+    public void onNewAmplitude(int amplitude) {
+        super.onNewAmplitude(amplitude);
+        //mCursor++;
+        putInt(amplitude);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mRecorder != null) {
+        if (isAttachedWithRecorder()) {
+            /*if (mDecoration.drawBars(this, canvas, mCursor, mByteArray)) {
+                postInvalidate();
+            }*/
             drawBars(canvas);
             postInvalidate();
+
         }
     }
 
@@ -167,13 +175,14 @@ public class WaveformView extends View {
             canvas.drawText(s, 0, 10, mTextPaint);
         }
 
+        //mDecoration.drawBars(this, canvas, mCursor, mByteArray);
         if (mDirection == DIRECTION_LEFT_TO_RIGHT) {
             drawFromLeftToRight(canvas, move, delta);
         } else if (mDirection == DIRECTION_RIGHT_TO_LEFT) {
             drawFromRightToLeft(canvas, move, delta);
         }
 
-        if (delta > mPeriod) {
+        if (delta > getPeriod()) {
             mCursor++;
             mLastNewBarTime = now;
         }
@@ -181,7 +190,7 @@ public class WaveformView extends View {
 
     private void drawFromLeftToRight (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
-        for (int i = mCursor; i > mCursor - mCount && i > 0; i--) {
+        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i > 0; i--) {
             float left = getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth + deltaX;
             float right = left + mBarWidth;
             float maxRight = getWidth() - getPaddingRight();
@@ -191,7 +200,7 @@ public class WaveformView extends View {
             float bottom = getHeight() - getPaddingBottom();
             if (offset == 0) {
                 float full = mByteArray[i] * mHeightUnit;
-                float remain = full * ((float)deltaTime / mPeriod) * 3;
+                float remain = full * ((float)deltaTime / getPeriod()) * 3;
                 if (remain > full) {
                     remain = full;
                 }
@@ -210,7 +219,7 @@ public class WaveformView extends View {
 
     private void drawFromRightToLeft (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
-        for (int i = mCursor; i > mCursor - mCount && i > 0; i--) {
+        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i > 0; i--) {
             float right = getWidth() - getPaddingRight() - (mGapWidth + mBarWidth) * offset - mGapWidth - deltaX;
             float left = right - mBarWidth;
             float maxLeft = getPaddingLeft();
@@ -220,7 +229,7 @@ public class WaveformView extends View {
             float bottom = getHeight() - getPaddingBottom();
             if (offset == 0) {
                 float full = mByteArray[i] * mHeightUnit;
-                float remain = full * ((float)deltaTime / mPeriod) * 3;
+                float remain = full * ((float)deltaTime / getPeriod()) * 3;
                 if (remain > full) {
                     remain = full;
                 }
@@ -242,17 +251,24 @@ public class WaveformView extends View {
     }*/
 
     public void attachMediaRecorder(MediaRecorder recorder) {
+        super.attachMediaRecorder(recorder);
         reset();
-        mRecorder = recorder;
         //mLastNewBarTime = SystemClock.elapsedRealtime();
-        post(mAmpRun);
         postInvalidate();
     }
 
-    public void detachedMediaRecorder () {
-        removeCallbacks(mAmpRun);
-        mRecorder = null;
+    public Amplitude detachedMediaRecorder () {
+        super.detachedMediaRecorder();
+        byte[] subArray = Arrays.copyOfRange(mByteArray, 0, mCursor);
+        Amplitude amplitude = new Amplitude(
+                subArray, mDirection, mCursor, mDrawBarBufSize, mMaxValue, mMinValue, mAmpUnit,
+                DEFAULT_AMP_MAX, mBarColor, mBarWidth, mGapWidth, mHeightUnit, getPeriod(), mMovePeriod
+        );
+
+
         mByteArray = null;
+
+        return amplitude;
     }
 
     private void reset () {
@@ -287,8 +303,32 @@ public class WaveformView extends View {
         }
     }
 
+    public void setBarWidth(float barWidth) {
+        this.mBarWidth = barWidth;
+    }
+
+    public float getBarWidth() {
+        return mBarWidth;
+    }
+
+    public void setGapWidth (float gapWidth) {
+        this.mGapWidth = gapWidth;
+    }
+
+    public float getGapWidth() {
+        return mGapWidth;
+    }
+
+    public int getBarColor () {
+        return mBarColor;
+    }
+
     public void setDirection (@Direction int direction) {
         mDirection = direction;
+    }
+
+    public @Direction int getDirection () {
+        return mDirection;
     }
 
     public void setMaxValue (int maxValue) {
@@ -296,9 +336,22 @@ public class WaveformView extends View {
         refreshAmpUnit();
     }
 
+    public int getMaxValue () {
+        return mMaxValue;
+    }
+
     public void setMinValue (int minValue) {
         mMinValue = minValue;
+        //refreshAmpUnit();
+    }
+
+    private void setAmpMax (int ampMax) {
+        this.mMaxAmp = ampMax;
         refreshAmpUnit();
+    }
+
+    public int getMinValue () {
+        return mMinValue;
     }
 
     public void setMaxDuration (int maxDuration) {
@@ -306,13 +359,17 @@ public class WaveformView extends View {
         refreshByteArray();
     }
 
+    public long getMaxDuration () {
+        return mMaxDuration;
+    }
+
     public void setPeriod (int period) {
-        mPeriod = period;
+        super.setPeriod(period);
         refreshByteArray();
     }
 
     private void refreshByteArray () {
-        int length = (int)(mMaxDuration / mPeriod);
+        int length = (int)(mMaxDuration / getPeriod());
         if (mByteArray == null || mByteArray.length != length) {
             mByteArray = new byte[length];
         }
@@ -325,11 +382,18 @@ public class WaveformView extends View {
 
     private void refreshAmpUnit () {
         //int minus =  - mMinValue;
-        mAmpUnit = AMP_MAX / mMaxValue;
+        if (mMaxValue <= 0) {
+            return;
+        }
+        mAmpUnit = mMaxAmp / mMaxValue;
         mHeightUnit = (float) (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / mMaxValue;
     }
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }

@@ -5,7 +5,9 @@
 
     <string name="text_left_to_right">Left -&gt; Right</string>
     <string name="text_right_to_left">Left &lt;- Right</string>
+    <string name="text_debug">Debug Mode</string>
 
-    <string name="btn_start_record">start</string>
-    <string name="btn_stop_record">stop</string>
+    <string name="btn_start_record">Start</string>
+    <string name="btn_stop_record">Stop</string>
+    <string name="btn_check_amp_file">Check amp file</string>
 </resources>

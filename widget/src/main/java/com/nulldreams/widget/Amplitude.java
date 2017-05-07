@@ -10,6 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by gaoyunfei on 2017/5/5.
@@ -36,63 +39,20 @@ public class Amplitude {
             byte[] amp17v = new byte[6];
             stream.read(amp17v);
 
-            byte[] cursorBa = new byte[4];
-            stream.read(cursorBa);
-            int cursor = byteArrayToInt(cursorBa);
-
-            byte[] drawBarBufSizeBa = new byte[4];
-            stream.read(drawBarBufSizeBa);
-            int drawBarBufSize = byteArrayToInt(drawBarBufSizeBa);
-
-            byte[] maxValueBa = new byte[4];
-            stream.read(maxValueBa);
-            int maxValue = byteArrayToInt(maxValueBa);
-
-            byte[] minValueBa = new byte[4];
-            stream.read(minValueBa);
-            int minValue = byteArrayToInt(minValueBa);
-
-            byte[] ampMaxBa = new byte[4];
-            stream.read(ampMaxBa);
-            int ampMax = byteArrayToInt(ampMaxBa);
-
-            byte[] ampUnitBa = new byte[4];
-            stream.read(ampUnitBa);
-            int ampUtil = byteArrayToInt(ampUnitBa);
-
-            byte[] barColorBa = new byte[4];
-            stream.read(barColorBa);
-            int barColor = byteArrayToInt(barColorBa);
-
-            byte[] barWidthBa = new byte[4];
-            stream.read(barWidthBa);
-            float barWidth = byteArrayToFloat(barWidthBa);
-
-            byte[] gapWidthBa = new byte[4];
-            stream.read(gapWidthBa);
-            float gapWidth = byteArrayToFloat(gapWidthBa);
-
-            byte[] heightUnitBa = new byte[4];
-            stream.read(heightUnitBa);
-            float heightUnit = byteArrayToFloat(heightUnitBa);
-
-            byte[] directionBa = new byte[4];
-            stream.read(directionBa);
-            int direction = byteArrayToInt(directionBa);
-
-            byte[] periodBa = new byte[8];
+            byte[] periodBa = new byte[4];
             stream.read(periodBa);
-            long period = byteArrayToLong(periodBa);
+            int period = byteArrayToInt(periodBa);
 
-            byte[] movePeriodBa = new byte[8];
-            stream.read(movePeriodBa);
-            long movePeriod = byteArrayToLong(movePeriodBa);
+            byte[] arraySizeBa = new byte[4];
+            stream.read(arraySizeBa);
+            int arraySize = byteArrayToInt(arraySizeBa);
 
-            byte[] data = new byte[cursor];
-            stream.read(data);
+            byte[] dataB = new byte[arraySize * 4];
+            stream.read(dataB);
 
-            return new Amplitude(data, direction, cursor, drawBarBufSize, maxValue, minValue,
-                    ampUtil, ampMax, barColor, barWidth, gapWidth, heightUnit, period, movePeriod);
+            int[] data = byteArrayToIntArray(dataB);
+
+            return new Amplitude(period, data);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -124,31 +84,35 @@ public class Amplitude {
         return ByteBuffer.wrap(array).getLong();
     }
 
-    private byte[] data;
-    private int direction;
-    private int cursor, drawBarBufSize;
-    private int maxValue, minValue, ampUnit, ampMax;
-    private int barColor;
-    private float barWidth, gapWidth, heightUnit;
-    private long period, movePeriod;
+    private static byte[] intArrayToByteArray (int[] array) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(array.length * 4);
+        IntBuffer intBuffer = byteBuffer.asIntBuffer();
+        intBuffer.put(array);
+        return byteBuffer.array();
+    }
 
-    public Amplitude(byte[] data, int direction, int cursor, int drawBarBufSize, int maxValue,
-                     int minValue, int ampUnit, int ampMax, int barColor, float barWidth,
-                     float gapWidth, float heightUint, long period, long movePeriod) {
-        this.data = data;
-        this.direction = direction;
-        this.cursor = cursor;
-        this.drawBarBufSize = drawBarBufSize;
-        this.maxValue = maxValue;
-        this.minValue = minValue;
-        this.ampUnit = ampUnit;
-        this.ampMax = ampMax;
-        this.barColor = barColor;
-        this.barWidth = barWidth;
-        this.gapWidth = gapWidth;
-        this.heightUnit = heightUint;
+    private static int[] byteArrayToIntArray (byte[] array) {
+        int[] dst = new int[array.length / 4];
+        ByteBuffer.wrap(array).asIntBuffer().get(dst);
+        return dst;
+    }
+
+    private int period;
+    private int[] amplitudeArray;
+
+    public Amplitude(int period, int[] amplitudeArray) {
         this.period = period;
-        this.movePeriod = movePeriod;
+        this.amplitudeArray = amplitudeArray;
+    }
+
+    public Amplitude (int period, List<Integer> amplitudeList) {
+        final int length = amplitudeList.size();
+        int[] data = new int[length];
+        for (int i  = 0; i < length; i++) {
+            data[i] = amplitudeList.get(i);
+        }
+        this.period = period;
+        this.amplitudeArray = data;
     }
 
     public boolean flushTo (File to) {
@@ -165,42 +129,16 @@ public class Amplitude {
         }
         if (outputStream != null) {
             byte[] amp17v = {0x61, 0x6d, 0x70, 0x31, 0x37, 0x76};
-            byte[] cursor = intToByteArray(this.cursor);
-            byte[] drawBarBufSize = intToByteArray(this.drawBarBufSize);
-            byte[] maxValue = intToByteArray(this.maxValue);
-            byte[] minValue = intToByteArray(this.minValue);
-            byte[] ampMax = intToByteArray(this.ampMax);
-            byte[] ampUnit = intToByteArray(this.ampUnit);
-            byte[] barColor = intToByteArray(this.barColor);
 
-            byte[] barWidth = floatToByteArray(this.barWidth);
-            byte[] gapWidth = floatToByteArray(this.gapWidth);
-            byte[] heightUnit = floatToByteArray(this.heightUnit);
+            byte[] period = intToByteArray(this.period);
 
-            byte[] direction = intToByteArray(this.direction);
-
-            byte[] period = longToByteArray(this.period);
-            byte[] movePeriod = longToByteArray(this.movePeriod);
+            byte[] dataB = intArrayToByteArray(this.amplitudeArray);
 
             try {
                 outputStream.write(amp17v);
-                outputStream.write(cursor);
-                outputStream.write(drawBarBufSize);
-                outputStream.write(maxValue);
-                outputStream.write(minValue);
-                outputStream.write(ampMax);
-                outputStream.write(ampUnit);
-                outputStream.write(barColor);
-
-                outputStream.write(barWidth);
-                outputStream.write(gapWidth);
-                outputStream.write(heightUnit);
-
-                outputStream.write(direction);
 
                 outputStream.write(period);
-                outputStream.write(movePeriod);
-                outputStream.write(this.data);
+                outputStream.write(dataB);
                 outputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -224,7 +162,7 @@ public class Amplitude {
     public String toString() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("direction", direction);
+            /*jsonObject.put("direction", direction);
             jsonObject.put("cursor", cursor);
             jsonObject.put("drawBarBufSize", drawBarBufSize);
             jsonObject.put("maxValue", maxValue);
@@ -234,10 +172,10 @@ public class Amplitude {
             jsonObject.put("barColor", barColor);
             jsonObject.put("barWidth", barWidth);
             jsonObject.put("gapWidth", gapWidth);
-            jsonObject.put("heightUnit", heightUnit);
+            jsonObject.put("heightUnit", heightUnit);*/
             jsonObject.put("period", period);
-            jsonObject.put("movePeriod", movePeriod);
-            jsonObject.put("data_length", data.length);
+            /*jsonObject.put("movePeriod", movePeriod);
+            jsonObject.put("data_length", data.length);*/
         } catch (JSONException e) {
             e.printStackTrace();
         }

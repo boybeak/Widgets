@@ -7,7 +7,11 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by gaoyunfei on 2017/5/7.
@@ -15,15 +19,21 @@ import android.view.View;
 
 abstract class AmplitudeView extends View {
 
+    private static final String TAG = AmplitudeView.class.getSimpleName();
+
     private int mPeriod;
 
     private MediaRecorder mRecorder;
 
+    private List<Integer> mAmpArray;
+
     private Runnable mAmpRun = new Runnable() {
         @Override
         public void run() {
-            if (mAmpRun != null) {
-                onNewAmplitude(mRecorder.getMaxAmplitude());
+            if (mRecorder != null) {
+                final int amp = mRecorder.getMaxAmplitude();
+                mAmpArray.add(amp);
+                onNewAmplitude(amp);
                 postDelayed(this, getPeriod());
             }
         }
@@ -55,6 +65,7 @@ abstract class AmplitudeView extends View {
         setPeriod(array.getInt(R.styleable.AmplitudeView_period,
                 getContext().getResources().getInteger(R.integer.config_amplitude_period_default)));
         array.recycle();
+        mAmpArray = new ArrayList<>();
     }
 
     public void onNewAmplitude (int amplitude) {
@@ -85,18 +96,26 @@ abstract class AmplitudeView extends View {
     }
 
     public Amplitude detachedMediaRecorder () {
-        /*byte[] subArray = Arrays.copyOfRange(mByteArray, 0, mCursor);
-        Amplitude amplitude = new Amplitude(
-                subArray, mDirection, mCursor, mDrawBarBufSize, mMaxValue, mMinValue, mAmpUnit,
-                AMP_MAX, mBarColor, mBarWidth, mGapWidth, mHeightUnit, getPeriod(), mMovePeriod
-        );*/
+        Amplitude amplitude = new Amplitude(mPeriod, mAmpArray);
 
-
+        mAmpArray.clear();
         removeCallbacks(mAmpRun);
         mRecorder = null;
-        return null;
+        return amplitude;
         //mByteArray = null;
 
         //return amplitude;
+    }
+
+    public int getAmplitudeSize () {
+        return mAmpArray.size();
+    }
+
+    public int getAmplitude (int index) {
+        return mAmpArray.get(index);
+    }
+
+    public void play (Amplitude amplitude) {
+
     }
 }

@@ -131,7 +131,10 @@ public class WaveformActivity extends AppCompatActivity {
 
     private void stopRecord () {
         ampFile = new File(getExternalCacheDir(), "amp" + File.separator + startTime + ".amp");
-        waveformView.detachedMediaRecorder().flushTo(ampFile);
+        Amplitude amp = waveformView.detachedMediaRecorder();
+        if (amp != null) {
+            amp.flushTo(ampFile);
+        }
         mLogTv.append(".amp file saved at:" + ampFile.getAbsolutePath() + "\n");
         // Recording is now started
         recorder.stop();

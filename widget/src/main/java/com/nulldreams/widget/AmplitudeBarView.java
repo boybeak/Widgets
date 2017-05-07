@@ -43,7 +43,7 @@ public class AmplitudeBarView extends AmplitudeView {
 
     private boolean debug = false;
 
-    private byte[] mByteArray;
+//    private byte[] mByteArray;
 
     private int mCursor = 0, mDrawBarBufSize = 50;
     private float mBarWidth, mGapWidth, mHeightUnit;
@@ -117,22 +117,7 @@ public class AmplitudeBarView extends AmplitudeView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
-        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        final int height = MeasureSpec.getSize(heightMeasureSpec);
-
-        if (MeasureSpec.AT_MOST == heightMode) {
-            Log.v(TAG, "AT_MOST");
-        } else if (MeasureSpec.EXACTLY == heightMode) {
-            Log.v(TAG, "EXACTLY");
-        } else if (MeasureSpec.UNSPECIFIED == heightMode) {
-            Log.v(TAG, "UNSPECIFIED");
-        }
-
-        Log.v(TAG, "onMeasure heightMode=" + heightMode + " height=" + height);
-
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        Log.v(TAG, "onMeasure mWidth=" + getMeasuredWidth() + " mHeight=" + getMeasuredHeight());
 
         mDrawBarBufSize = (int) Math.ceil(getMeasuredWidth() / (mBarWidth + mGapWidth));
         mMovePeriod = (int)(getPeriod() / (mBarWidth + mGapWidth));
@@ -140,19 +125,10 @@ public class AmplitudeBarView extends AmplitudeView {
     }
 
     @Override
-    public void onNewAmplitude(int amplitude) {
-        super.onNewAmplitude(amplitude);
-        //mCursor++;
-        putInt(amplitude);
-    }
-
-    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (isAttachedWithRecorder()) {
-            /*if (mDecoration.drawBars(this, canvas, mCursor, mByteArray)) {
-                postInvalidate();
-            }*/
+
             drawBars(canvas);
             postInvalidate();
 
@@ -160,15 +136,12 @@ public class AmplitudeBarView extends AmplitudeView {
     }
 
     private void drawBars (Canvas canvas) {
+
         long now = SystemClock.elapsedRealtime();
 
-        long delta = now - mLastNewBarTime;
+        long newBarDelta = now - mLastNewBarTime;
 
-        float move = delta / mMovePeriod;
-
-        if (mCursor >= mByteArray.length) {
-            return;
-        }
+        float move = 1f * newBarDelta / mMovePeriod;
 
         if (debug) {
             String s = "ViewWid=" + getWidth() + " ViewHei=" + getHeight() + " mAmpUnit=" + mAmpUnit + " mHeightUnit=" + mHeightUnit;
@@ -177,20 +150,21 @@ public class AmplitudeBarView extends AmplitudeView {
 
         //mDecoration.drawBars(this, canvas, mCursor, mByteArray);
         if (mDirection == DIRECTION_LEFT_TO_RIGHT) {
-            drawFromLeftToRight(canvas, move, delta);
+            drawFromLeftToRight(canvas, move, newBarDelta);
         } else if (mDirection == DIRECTION_RIGHT_TO_LEFT) {
-            drawFromRightToLeft(canvas, move, delta);
+            drawFromRightToLeft(canvas, move, newBarDelta);
         }
 
-        if (delta > getPeriod()) {
-            mCursor++;
+        if (newBarDelta > getPeriod()) {
+            mCursor = getAmplitudeSize() - 1;
             mLastNewBarTime = now;
         }
     }
 
     private void drawFromLeftToRight (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
-        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i > 0; i--) {
+        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i >= 0; i--) {
+
             float left = getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth + deltaX;
             float right = left + mBarWidth;
             float maxRight = getWidth() - getPaddingRight();
@@ -199,19 +173,19 @@ public class AmplitudeBarView extends AmplitudeView {
             }
             float bottom = getHeight() - getPaddingBottom();
             if (offset == 0) {
-                float full = mByteArray[i] * mHeightUnit;
-                float remain = full * ((float)deltaTime / getPeriod()) * 3;
+                float full = valueAt(i) * mHeightUnit;
+                float remain = full * ((float)deltaTime / getPeriod()) * 3.2f;
                 if (remain > full) {
                     remain = full;
                 }
                 canvas.drawRect(left, bottom - remain, right, bottom, mPaint);
             } else {
-                canvas.drawRect(left, bottom - (mByteArray[i] * mHeightUnit), right, bottom, mPaint);
+                canvas.drawRect(left, bottom - (valueAt(i) * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
                 float b = (getHeight() - getPaddingBottom() - getPaddingTop()) / 2;
                 canvas.drawText(i + "", left, b - 10, mTextPaint);
-                canvas.drawText(mByteArray[i] + "", left, b + 10, mTextPaint);
+                canvas.drawText(valueAt(i) + "", left, b + 10, mTextPaint);
             }
             offset++;
         }
@@ -219,8 +193,10 @@ public class AmplitudeBarView extends AmplitudeView {
 
     private void drawFromRightToLeft (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
-        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i > 0; i--) {
-            float right = getWidth() - getPaddingRight() - (mGapWidth + mBarWidth) * offset - mGapWidth - deltaX;
+        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i >= 0; i--) {
+
+            float right = getWidth() - getPaddingRight()
+                    - (mGapWidth + mBarWidth) * offset - mGapWidth - deltaX;
             float left = right - mBarWidth;
             float maxLeft = getPaddingLeft();
             if (left < maxLeft) {
@@ -228,19 +204,19 @@ public class AmplitudeBarView extends AmplitudeView {
             }
             float bottom = getHeight() - getPaddingBottom();
             if (offset == 0) {
-                float full = mByteArray[i] * mHeightUnit;
-                float remain = full * ((float)deltaTime / getPeriod()) * 3;
+                float full = valueAt(i) * mHeightUnit;
+                float remain = full * ((float)deltaTime / getPeriod()) * 3.2f;
                 if (remain > full) {
                     remain = full;
                 }
                 canvas.drawRect(left, bottom - remain, right, bottom, mPaint);
             } else {
-                canvas.drawRect(left, bottom - (mByteArray[i] * mHeightUnit), right, bottom, mPaint);
+                canvas.drawRect(left, bottom - (valueAt(i) * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
                 float b = (getHeight() - getPaddingBottom() - getPaddingTop()) / 2;
                 canvas.drawText(i + "", left, b - 10, mTextPaint);
-                canvas.drawText(mByteArray[i] + "", left, b + 10, mTextPaint);
+                canvas.drawText(valueAt(i) + "", left, b + 10, mTextPaint);
             }
             offset++;
         }
@@ -253,32 +229,43 @@ public class AmplitudeBarView extends AmplitudeView {
     public void attachMediaRecorder(MediaRecorder recorder) {
         super.attachMediaRecorder(recorder);
         reset();
-        //mLastNewBarTime = SystemClock.elapsedRealtime();
+        mCursor = getAmplitudeSize() - 1;
+        mLastNewBarTime = SystemClock.elapsedRealtime();
         postInvalidate();
     }
 
     public Amplitude detachedMediaRecorder () {
         super.detachedMediaRecorder();
-        byte[] subArray = Arrays.copyOfRange(mByteArray, 0, mCursor);
+        mCursor = 0;
+        mLastNewBarTime = 0;
+        /*byte[] subArray = Arrays.copyOfRange(mByteArray, 0, mCursor);
         Amplitude amplitude = new Amplitude(
                 subArray, mDirection, mCursor, mDrawBarBufSize, mMaxValue, mMinValue, mAmpUnit,
-                DEFAULT_AMP_MAX, mBarColor, mBarWidth, mGapWidth, mHeightUnit, getPeriod(), mMovePeriod
+                mMaxAmp, mBarColor, mBarWidth, mGapWidth, mHeightUnit, getPeriod(), mMovePeriod
         );
 
 
-        mByteArray = null;
+        mByteArray = null;*/
 
-        return amplitude;
+        return null;
     }
 
     private void reset () {
         refreshByteArray();
-        mCursor = 0;
+        //mCursor = 0;
         mLastNewBarTime = 0;
     }
 
-    private void putInt (int amp) {
-        putByte((byte)(amp / mAmpUnit));
+    private int amplitudeToValue (int amp) {
+        return Math.max(Math.min(mMaxValue, amp / mAmpUnit), mMinValue);
+    }
+
+    private int valueAt (int index) {
+        return amplitudeToValue(getAmplitude(index));
+    }
+
+    /*private void putInt (int amp) {
+        putByte((byte)amplitudeToValue(amp));
     }
 
     private void putByte (byte b) {
@@ -290,7 +277,7 @@ public class AmplitudeBarView extends AmplitudeView {
             }
             mByteArray[mCursor + 1] = b;
         }
-    }
+    }*/
 
     public void setBarColorResource (@ColorRes int colorRes) {
         setBarColor(getContext().getResources().getColor(colorRes));
@@ -370,14 +357,14 @@ public class AmplitudeBarView extends AmplitudeView {
 
     private void refreshByteArray () {
         int length = (int)(mMaxDuration / getPeriod());
-        if (mByteArray == null || mByteArray.length != length) {
+        /*if (mByteArray == null || mByteArray.length != length) {
             mByteArray = new byte[length];
         }
         for (int i = 0; i < mByteArray.length; i++) {
             if (mByteArray[i] <= 0) {
                 mByteArray[i] = (byte) mMinValue;
             }
-        }
+        }*/
     }
 
     private void refreshAmpUnit () {

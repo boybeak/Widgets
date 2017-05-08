@@ -6,21 +6,32 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.nulldreams.demo.widgets.WaveformActivity">
-    <com.nulldreams.widget.AmplitudeBarView
-        android:id="@+id/waveform_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:padding="8dp"
-        android:layout_margin="8dp"
-        android:background="@drawable/bg_outline_dark_gray"
-        app:barColor="@android:color/darker_gray"
-        app:barWidth="8dp"
-        app:gapWidth="2dp"
-        app:period="400"
-        app:maxValue="100"
-        app:minValue="2"
-        app:debug="true"
-        app:direction="left_to_right"/>
+        android:layout_height="80dp"
+        android:orientation="horizontal">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/holo_orange_light"/>
+        <com.nulldreams.widget.AmplitudeBarView
+            android:id="@+id/waveform_view"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:padding="8dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_outline_dark_gray"
+            android:layout_weight="1"
+            app:barColor="@android:color/darker_gray"
+            app:barWidth="8dp"
+            app:gapWidth="2dp"
+            app:period="400"
+            app:maxValue="100"
+            app:minValue="2"
+            app:debug="true"
+            app:direction="left_to_right"/>
+    </LinearLayout>
     <Button
         android:id="@+id/waveform_start_stop"
         android:layout_width="wrap_content"

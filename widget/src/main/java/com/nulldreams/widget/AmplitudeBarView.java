@@ -117,7 +117,13 @@ public class AmplitudeBarView extends AmplitudeView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        /*Log.v(TAG, "onMeasure widthMode=" + widthMode + " widthSize=" + widthSize);
+        Log.v(TAG, "onMeasure widthSizeMeasured=" + widthSize);*/
 
         mDrawBarBufSize = (int) Math.ceil(getMeasuredWidth() / (mBarWidth + mGapWidth));
         mMovePeriod = (int)(getPeriod() / (mBarWidth + mGapWidth));

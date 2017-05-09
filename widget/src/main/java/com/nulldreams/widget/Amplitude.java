@@ -1,5 +1,7 @@
 package com.nulldreams.widget;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +22,8 @@ import java.util.List;
  */
 
 public class Amplitude {
+
+    private static final String TAG = Amplitude.class.getSimpleName();
 
     public static Amplitude fromFile (String path) {
         return fromFile(new File(path));
@@ -115,6 +120,22 @@ public class Amplitude {
         this.amplitudeArray = data;
     }
 
+    public int getPeriod() {
+        return period;
+    }
+
+    public int[] getAmplitudeArray() {
+        return amplitudeArray;
+    }
+
+    public List<Integer> getAmplitudeList() {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < amplitudeArray.length; i++) {
+            list.add(amplitudeArray[i]);
+        }
+        return list;
+    }
+
     public boolean flushTo (File to) {
         if (!to.getParentFile().exists()) {
             if (!to.getParentFile().mkdirs()) {
@@ -131,13 +152,15 @@ public class Amplitude {
             byte[] amp17v = {0x61, 0x6d, 0x70, 0x31, 0x37, 0x76};
 
             byte[] period = intToByteArray(this.period);
-
+            byte[] arrayLength = intToByteArray(this.amplitudeArray.length);
             byte[] dataB = intArrayToByteArray(this.amplitudeArray);
+            Log.v(TAG, "flushTo dataB.length=" + dataB);
 
             try {
                 outputStream.write(amp17v);
 
                 outputStream.write(period);
+                outputStream.write(arrayLength);
                 outputStream.write(dataB);
                 outputStream.flush();
             } catch (IOException e) {
@@ -162,20 +185,8 @@ public class Amplitude {
     public String toString() {
         JSONObject jsonObject = new JSONObject();
         try {
-            /*jsonObject.put("direction", direction);
-            jsonObject.put("cursor", cursor);
-            jsonObject.put("drawBarBufSize", drawBarBufSize);
-            jsonObject.put("maxValue", maxValue);
-            jsonObject.put("minValue", minValue);
-            jsonObject.put("ampUnit", ampUnit);
-            jsonObject.put("ampMax", ampMax);
-            jsonObject.put("barColor", barColor);
-            jsonObject.put("barWidth", barWidth);
-            jsonObject.put("gapWidth", gapWidth);
-            jsonObject.put("heightUnit", heightUnit);*/
             jsonObject.put("period", period);
-            /*jsonObject.put("movePeriod", movePeriod);
-            jsonObject.put("data_length", data.length);*/
+            jsonObject.put("amplitude_length", amplitudeArray.length);
         } catch (JSONException e) {
             e.printStackTrace();
         }

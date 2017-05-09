@@ -25,12 +25,14 @@ import java.io.IOException;
 public class WaveformActivity extends AppCompatActivity {
 
     private AmplitudeBarView waveformView;
-    private Button btn, checkBtn;
+    private Button btn, checkBtn, playBtn;
     private RadioGroup mRg;
     private AppCompatCheckBox mCb;
     private AppCompatTextView mLogTv;
 
     private File ampFile;
+
+    private Amplitude amp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +90,21 @@ public class WaveformActivity extends AppCompatActivity {
                 }
             }
         });
+        playBtn = (Button) findViewById(R.id.waveform_play_amp_file);
+        playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (amp != null) {
+                    if (waveformView.isPlaying()) {
+                        waveformView.stopPlay();
+                    } else {
+                        waveformView.setAmplitude(amp);
+                        waveformView.startPlay();
+                    }
+                }
+                playBtn.setText(waveformView.isPlaying() ? R.string.btn_stop_play_amp_file : R.string.btn_play_amp_file);
+            }
+        });
         mLogTv = (AppCompatTextView)findViewById(R.id.waveform_log_tv);
     }
 
@@ -131,7 +148,7 @@ public class WaveformActivity extends AppCompatActivity {
 
     private void stopRecord () {
         ampFile = new File(getExternalCacheDir(), "amp" + File.separator + startTime + ".amp");
-        Amplitude amp = waveformView.detachedMediaRecorder();
+        amp = waveformView.detachedMediaRecorder();
         if (amp != null) {
             amp.flushTo(ampFile);
         }

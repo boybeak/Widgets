@@ -10,4 +10,6 @@
     <string name="btn_start_record">Start</string>
     <string name="btn_stop_record">Stop</string>
     <string name="btn_check_amp_file">Check amp file</string>
+    <string name="btn_play_amp_file">Play amp file</string>
+    <string name="btn_stop_play_amp_file">Stop play amp file</string>
 </resources>

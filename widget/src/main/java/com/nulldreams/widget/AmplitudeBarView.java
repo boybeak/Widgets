@@ -20,7 +20,6 @@ import com.nulldreams.widget.decoration.DefaultDecoration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
 
 /**
  * Created by boybe on 2017/5/2.
@@ -50,7 +49,7 @@ public class AmplitudeBarView extends AmplitudeView {
     private long /*mPeriod = DEFAULT_PERIOD,*/ mMovePeriod = 20, mLastNewBarTime = 0,
             mMaxDuration = DEFAULT_MAX_DURATION;
 
-    private int mBarColor;
+    private int mBarColor, mBarColorDark;
 
     private int mMaxValue, mMinValue, mAmpUnit = 1, mMaxAmp;
 
@@ -88,10 +87,9 @@ public class AmplitudeBarView extends AmplitudeView {
 
         if (attrs != null) {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeBarView);
-            mBarColor = array.getColor(R.styleable.AmplitudeBarView_barColor, Color.GREEN);
             mBarWidth = array.getDimensionPixelSize(R.styleable.AmplitudeBarView_barWidth, 0);
-            setBarColor(array.getColor(R.styleable.AmplitudeBarView_barColor, Color.GREEN));
-
+            setBarColor(array.getColor(R.styleable.AmplitudeBarView_barColor, Color.LTGRAY));
+            setBarColorDark(array.getColor(R.styleable.AmplitudeBarView_barColorDark, Color.DKGRAY));
             if (mBarWidth == 0) {
                 mBarWidth = barWidthDef;
             }
@@ -133,11 +131,43 @@ public class AmplitudeBarView extends AmplitudeView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.v(TAG, "onDraw isAttachedWithRecorder()=" + isAttachedWithRecorder() + " (getAmplitude() != null)=" + (getAmplitude() != null));
         if (isAttachedWithRecorder()) {
-
             drawBars(canvas);
-            postInvalidate();
+            invalidate();
+        } else if (hasAmplitude()) {
+            if (isPlaying()) {
+                drawBars(canvas);
+                if (mCursor < getAmplitudeSize()) {
+                    invalidate();
+                }
+            } else {
+                drawFirstSeveralAmplitudes(canvas);
+            }
+        }
+    }
 
+    private void drawFirstSeveralAmplitudes(Canvas canvas) {
+        Amplitude amplitude = getAmplitude();
+        int[] data = amplitude.getAmplitudeArray();
+        int count = Math.min(mDrawBarBufSize, data.length);
+        int offset = 0;
+        mPaint.setColor(mBarColor);
+        for (int i = count - 1; i >= 0; i--) {
+            float left = 0;
+            float right = 0;
+            float bottom = getHeight() - getPaddingBottom();
+            float top = bottom - valueAt(i) * mHeightUnit;
+            if (mDirection == DIRECTION_LEFT_TO_RIGHT) {
+                left = getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth;
+                right = left + mBarWidth;
+            } else if (mDirection == DIRECTION_RIGHT_TO_LEFT) {
+                right = getWidth() - getPaddingRight()
+                        - (mGapWidth + mBarWidth) * offset - mGapWidth;
+                left = right - mBarWidth;
+            }
+            canvas.drawRect(left, top, right, bottom, mPaint);
+            offset++;
         }
     }
 
@@ -162,14 +192,15 @@ public class AmplitudeBarView extends AmplitudeView {
         }
 
         if (newBarDelta > getPeriod()) {
-            mCursor = getAmplitudeSize() - 1;
+            int exceptCursor = mCursor + 1;
+            mCursor = Math.min(exceptCursor, getAmplitudeSize() - 1);
             mLastNewBarTime = now;
         }
     }
 
     private void drawFromLeftToRight (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
-        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i >= 0; i--) {
+        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i >= 0 && i < getAmplitudeSize(); i--) {
 
             float left = getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth + deltaX;
             float right = left + mBarWidth;
@@ -184,8 +215,10 @@ public class AmplitudeBarView extends AmplitudeView {
                 if (remain > full) {
                     remain = full;
                 }
+                mPaint.setColor(mBarColorDark);
                 canvas.drawRect(left, bottom - remain, right, bottom, mPaint);
             } else {
+                mPaint.setColor(mBarColor);
                 canvas.drawRect(left, bottom - (valueAt(i) * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
@@ -199,7 +232,7 @@ public class AmplitudeBarView extends AmplitudeView {
 
     private void drawFromRightToLeft (Canvas canvas, float deltaX, long deltaTime) {
         int offset = 0;
-        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i >= 0; i--) {
+        for (int i = mCursor; i > mCursor - mDrawBarBufSize && i >= 0 && i < getAmplitudeSize(); i--) {
 
             float right = getWidth() - getPaddingRight()
                     - (mGapWidth + mBarWidth) * offset - mGapWidth - deltaX;
@@ -215,8 +248,10 @@ public class AmplitudeBarView extends AmplitudeView {
                 if (remain > full) {
                     remain = full;
                 }
+                mPaint.setColor(mBarColorDark);
                 canvas.drawRect(left, bottom - remain, right, bottom, mPaint);
             } else {
+                mPaint.setColor(mBarColor);
                 canvas.drawRect(left, bottom - (valueAt(i) * mHeightUnit), right, bottom, mPaint);
             }
             if (debug) {
@@ -237,23 +272,21 @@ public class AmplitudeBarView extends AmplitudeView {
         reset();
         mCursor = getAmplitudeSize() - 1;
         mLastNewBarTime = SystemClock.elapsedRealtime();
-        postInvalidate();
+        invalidate();
     }
 
     public Amplitude detachedMediaRecorder () {
-        super.detachedMediaRecorder();
+        Amplitude amplitude = super.detachedMediaRecorder();
         mCursor = 0;
         mLastNewBarTime = 0;
-        /*byte[] subArray = Arrays.copyOfRange(mByteArray, 0, mCursor);
-        Amplitude amplitude = new Amplitude(
-                subArray, mDirection, mCursor, mDrawBarBufSize, mMaxValue, mMinValue, mAmpUnit,
-                mMaxAmp, mBarColor, mBarWidth, mGapWidth, mHeightUnit, getPeriod(), mMovePeriod
-        );
 
+        return amplitude;
+    }
 
-        mByteArray = null;*/
-
-        return null;
+    @Override
+    public void startPlay() {
+        mCursor = 0;
+        super.startPlay();
     }
 
     private void reset () {
@@ -270,30 +303,20 @@ public class AmplitudeBarView extends AmplitudeView {
         return amplitudeToValue(getAmplitude(index));
     }
 
-    /*private void putInt (int amp) {
-        putByte((byte)amplitudeToValue(amp));
-    }
-
-    private void putByte (byte b) {
-        if (mCursor < mByteArray.length - 1) {
-            if (b < mMinValue) {
-                b = (byte) mMinValue;
-            } else if (b > mMaxValue) {
-                b = (byte) mMaxValue;
-            }
-            mByteArray[mCursor + 1] = b;
-        }
-    }*/
-
     public void setBarColorResource (@ColorRes int colorRes) {
         setBarColor(getContext().getResources().getColor(colorRes));
     }
 
     public void setBarColor (int barColor) {
         this.mBarColor = barColor;
-        if (this.mPaint != null) {
-            this.mPaint.setColor(mBarColor);
-        }
+    }
+
+    public void setBarColorDarkResource (@ColorRes int colorRes) {
+        setBarColorDark(getContext().getResources().getColor(colorRes));
+    }
+
+    public void setBarColorDark (int barColorDark) {
+        this.mBarColorDark = barColorDark;
     }
 
     public void setBarWidth(float barWidth) {

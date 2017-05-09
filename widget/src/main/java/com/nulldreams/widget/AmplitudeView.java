@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,6 +42,10 @@ abstract class AmplitudeView extends View {
     };
 
     private int mLastAmplitude;
+
+    private Amplitude mAmp;
+
+    private boolean isPlaying = false;
 
     public AmplitudeView(Context context) {
         this(context, null);
@@ -89,10 +95,9 @@ abstract class AmplitudeView extends View {
     }
 
     public void attachMediaRecorder(MediaRecorder recorder) {
-        //reset();
+        mAmpArray.clear();
         mRecorder = recorder;
         post(mAmpRun);
-        //postInvalidate();
     }
 
     public Amplitude detachedMediaRecorder () {
@@ -101,10 +106,8 @@ abstract class AmplitudeView extends View {
         mAmpArray.clear();
         removeCallbacks(mAmpRun);
         mRecorder = null;
+        setAmplitude(amplitude);
         return amplitude;
-        //mByteArray = null;
-
-        //return amplitude;
     }
 
     public int getAmplitudeSize () {
@@ -115,7 +118,36 @@ abstract class AmplitudeView extends View {
         return mAmpArray.get(index);
     }
 
-    public void play (Amplitude amplitude) {
-
+    public void setAmplitude (Amplitude amplitude) {
+        if (isAttachedWithRecorder()) {
+            detachedMediaRecorder();
+        }
+        mAmp = amplitude;
+        mAmpArray.clear();
+        mAmpArray.addAll(getAmplitude().getAmplitudeList());
+        invalidate();
     }
+
+    public Amplitude getAmplitude () {
+        return mAmp;
+    }
+
+    public boolean hasAmplitude () {
+        return mAmp != null;
+    }
+
+    public void startPlay () {
+        isPlaying = true;
+        invalidate();
+    }
+
+    public void stopPlay () {
+        mAmp = null;
+        isPlaying = false;
+    }
+
+    public boolean isPlaying () {
+        return  mAmp != null && isPlaying;
+    }
+
 }

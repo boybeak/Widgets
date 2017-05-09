@@ -5,6 +5,7 @@
     </declare-styleable>
     <declare-styleable name="AmplitudeBarView">
         <attr name="barColor" format="color|reference"/>
+        <attr name="barColorDark" format="color|reference"/>
         <attr name="barWidth" format="dimension|reference"/>
         <attr name="gapWidth" format="dimension|reference"/>
         <attr name="direction" format="enum">

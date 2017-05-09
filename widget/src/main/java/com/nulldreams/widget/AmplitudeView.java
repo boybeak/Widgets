@@ -95,6 +95,7 @@ abstract class AmplitudeView extends View {
     }
 
     public void attachMediaRecorder(MediaRecorder recorder) {
+        stopPlay();
         mAmpArray.clear();
         mRecorder = recorder;
         post(mAmpRun);

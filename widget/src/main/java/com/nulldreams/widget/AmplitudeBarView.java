@@ -131,13 +131,13 @@ public class AmplitudeBarView extends AmplitudeView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.v(TAG, "onDraw isAttachedWithRecorder()=" + isAttachedWithRecorder() + " (getAmplitude() != null)=" + (getAmplitude() != null));
         if (isAttachedWithRecorder()) {
             drawBars(canvas);
             invalidate();
         } else if (hasAmplitude()) {
             if (isPlaying()) {
                 drawBars(canvas);
+                //Log.v(TAG, "onDraw mCursor=" + mCursor + " ampSize=" + getAmplitudeSize());
                 if (mCursor < getAmplitudeSize()) {
                     invalidate();
                 }
@@ -193,7 +193,11 @@ public class AmplitudeBarView extends AmplitudeView {
 
         if (newBarDelta > getPeriod()) {
             int exceptCursor = mCursor + 1;
-            mCursor = Math.min(exceptCursor, getAmplitudeSize() - 1);
+            if (isPlaying()) {
+                mCursor = exceptCursor;
+            } else {
+                mCursor = Math.min(exceptCursor, getAmplitudeSize() - 1);
+            }
             mLastNewBarTime = now;
         }
     }

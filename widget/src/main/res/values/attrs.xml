@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <declare-styleable name="AmplitudeView">
         <attr name="period" format="integer|reference"/>
     </declare-styleable>
+
     <declare-styleable name="AmplitudeBarView">
         <attr name="barColor" format="color|reference"/>
         <attr name="barColorDark" format="color|reference"/>
@@ -17,5 +19,10 @@
         <attr name="maxDuration" format="integer|reference"/>
         <attr name="maxAmplitude" format="integer|reference"/>
         <attr name="debug" format="boolean|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="AmplitudeBezierView">
+        <attr name="lineCount" format="integer|reference"/>
+        <attr name="keyPointCount" format="integer|reference"/>
     </declare-styleable>
 </resources>

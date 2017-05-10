@@ -15,8 +15,6 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
 
-import com.nulldreams.widget.decoration.BarDecoration;
-import com.nulldreams.widget.decoration.DefaultDecoration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -56,8 +54,6 @@ public class AmplitudeBarView extends AmplitudeView {
     private @Direction int mDirection = DIRECTION_LEFT_TO_RIGHT;
 
     private Paint mPaint, mTextPaint;
-
-    private BarDecoration mDecoration = new DefaultDecoration();
 
     public AmplitudeBarView(Context context) {
         this(context, null);

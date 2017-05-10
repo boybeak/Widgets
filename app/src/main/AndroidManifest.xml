@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nulldreams.demo.widgets">
 
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -20,8 +20,10 @@
         </activity>
         <activity
             android:name=".WaveformActivity"
-            android:label="@string/title_activity_waveform"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:label="@string/title_activity_amplitude_bar"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".BezierActivity"
+            />
     </application>
 
 </manifest>

@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Widgets</string>
-    <string name="title_waveform_view">WaveformView</string>
-    <string name="title_activity_waveform">WaveformActivity</string>
+    <string name="title_amplitude_bar_view">AmplitudeBarView</string>
+    <string name="title_amplitude_bezier_view">AmplitudeBezierView</string>
+    <string name="title_activity_amplitude_bar">AmplitudeBarActivity</string>
 
     <string name="text_left_to_right">Left -&gt; Right</string>
     <string name="text_right_to_left">Left &lt;- Right</string>

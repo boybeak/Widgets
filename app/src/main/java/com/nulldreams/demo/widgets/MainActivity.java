@@ -7,6 +7,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.nulldreams.adapter.DelegateAdapter;
+import com.nulldreams.adapter.DelegateParser;
+import com.nulldreams.adapter.impl.LayoutImpl;
 import com.nulldreams.demo.widgets.adapter.IndexDelegate;
 import com.nulldreams.demo.widgets.module.Index;
 
@@ -32,8 +34,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mAdapter.add(new IndexDelegate(
-                new Index(R.drawable.ic_chart_bar, R.string.title_waveform_view)))
-        .autoNotify();
+        mAdapter.addAll(DataList.DATA, new DelegateParser<Index>() {
+            @Override
+            public LayoutImpl parse(DelegateAdapter adapter, Index data) {
+                return new IndexDelegate(data);
+            }
+        });
     }
 }

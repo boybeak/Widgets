@@ -109,6 +109,7 @@ public class AmplitudeBarView extends AmplitudeView {
         mPaint = new Paint();
         mTextPaint = new Paint();
         mPaint.setColor(mBarColor);
+        mPaint.setAntiAlias(true);
         mTextPaint.setColor(Color.BLACK);
     }
 

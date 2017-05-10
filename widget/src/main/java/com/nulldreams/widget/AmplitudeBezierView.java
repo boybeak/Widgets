@@ -55,7 +55,7 @@ public class AmplitudeBezierView extends AmplitudeView {
     }
 
     private void drawOneBezier (Canvas canvas) {
-        getLastAmplitude()
+        //getLastAmplitude()
         mPath.moveTo(0, getHeight() / 2);
         mPath.quadTo(getWidth() / 4, 0, getWidth() / 2, getHeight() / 2);
         mPath.quadTo(getWidth() / 4 * 3, getHeight(), getWidth(), getHeight() / 2);

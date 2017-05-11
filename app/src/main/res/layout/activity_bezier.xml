@@ -10,5 +10,6 @@
         android:layout_height="60dp"
         android:layout_margin="8dp"
         android:background="@drawable/bg_outline_dark_gray"
+        app:keyPointCount="2"
         />
 </LinearLayout>

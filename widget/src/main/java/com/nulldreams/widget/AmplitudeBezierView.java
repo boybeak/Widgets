@@ -34,8 +34,6 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private PointF[] mPoints = null;
 
-    private int direction = 1;
-
     public AmplitudeBezierView(Context context) {
         this(context, null);
     }
@@ -78,9 +76,9 @@ public class AmplitudeBezierView extends AmplitudeView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        mStartX = -getMeasuredWidth() + getPaddingLeft();
-        mStartY = (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / 2;
-        mUnitX = (getMeasuredWidth() - getPaddingLeft() - getPaddingRight()) * 1.0f / (mKeyPointCount * 2);
+        mStartX = -getMeasuredWidth();
+        mStartY = getMeasuredHeight() / 2;
+        mUnitX = getMeasuredWidth() * 1.0f / (mKeyPointCount * 2);
 
         for (int i = 0; i < mPoints.length; i++) {
             mPoints[i].x = mStartX + i * mUnitX;
@@ -96,11 +94,12 @@ public class AmplitudeBezierView extends AmplitudeView {
     }
 
     private void drawOneBezier (Canvas canvas) {
-        if (mOffset > getWidth() - getPaddingRight()) {
-            mOffset = mOffset - (getWidth() - getPaddingRight());
+        if (mOffset > getWidth()) {
+            Log.v(TAG, "drawOneBezier " + mOffset);
+            mOffset = 0;
         }
         mPath.reset();
-        mPath.moveTo(mPoints[0].x, mPoints[0].y);
+        mPath.moveTo(mPoints[0].x + mOffset, mPoints[0].y);
         for (int i = 1; i < mPoints.length; i += 2) {
             mPath.quadTo(mPoints[i].x + mOffset, mPoints[i].y, mPoints[i + 1].x + mOffset, mPoints[i + 1].y);
         }
@@ -109,7 +108,7 @@ public class AmplitudeBezierView extends AmplitudeView {
         for (int i = 0; i < mPoints.length; i++) {
             canvas.drawPoint(mPoints[i].x, mPoints[i].y, mPaint);
         }
-        mOffset += 20 * direction;
+        mOffset += 12;
         invalidate();
     }
 

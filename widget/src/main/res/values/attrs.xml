@@ -23,6 +23,7 @@
 
     <declare-styleable name="AmplitudeBezierView">
         <attr name="lineCount" format="integer|reference"/>
-        <attr name="keyPointCount" format="integer|reference"/>
+        <attr name="waveCount" format="integer|reference"/>
+        <attr name="moveSpeed" format="integer|reference"/>
     </declare-styleable>
 </resources>

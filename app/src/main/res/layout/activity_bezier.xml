@@ -10,8 +10,10 @@
         android:id="@+id/bezier_view"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_margin="8dp"
         android:background="@drawable/bg_outline_dark_gray"
-        app:keyPointCount="4"
+        app:waveCount="2"
+        app:moveSpeed="12"
         />
     <Button
         android:id="@+id/bezier_start"

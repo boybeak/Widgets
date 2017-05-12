@@ -37,6 +37,8 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private int mAmplitudeValue;
 
+    private int mMoveSpeed = 8;
+
     private ObjectAnimator animator;
 
     public AmplitudeBezierView(Context context) {
@@ -61,7 +63,8 @@ public class AmplitudeBezierView extends AmplitudeView {
     private void initAmplitudeBezierView (Context context, AttributeSet attrs) {
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeBezierView);
-        mKeyPointCount = array.getInt(R.styleable.AmplitudeBezierView_keyPointCount, 1);
+        mKeyPointCount = array.getInt(R.styleable.AmplitudeBezierView_waveCount, 1) << 1;
+        setMoveSpeed(array.getInt(R.styleable.AmplitudeBezierView_moveSpeed, 8));
         array.recycle();
 
         mPoints = new PointF[mKeyPointCount * 4 + 1];
@@ -75,7 +78,7 @@ public class AmplitudeBezierView extends AmplitudeView {
         mPaint.setColor(Color.BLACK);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(8);
+        mPaint.setStrokeWidth(4);
     }
 
     @Override
@@ -110,7 +113,7 @@ public class AmplitudeBezierView extends AmplitudeView {
         }
         //mPath.close();
         canvas.drawPath(mPath, mPaint);
-        mOffset += 12;
+        mOffset += mMoveSpeed;
     }
 
     @Override
@@ -118,7 +121,12 @@ public class AmplitudeBezierView extends AmplitudeView {
         if (animator != null && animator.isRunning()) {
             animator.cancel();
         }
-        animator = ObjectAnimator.ofInt(this, "amplitudeValue", mAmplitudeValue, amplitude);
+
+        if (animator == null) {
+            animator = ObjectAnimator.ofInt(this, "amplitudeValue", mAmplitudeValue, amplitude);
+        } else {
+            animator.setIntValues(mAmplitudeValue, amplitude);
+        }
         animator.setDuration(getPeriod());
         animator.start();
         super.onNewAmplitude(amplitude);
@@ -127,6 +135,10 @@ public class AmplitudeBezierView extends AmplitudeView {
     public void setAmplitudeValue (int amplitudeValue) {
         mAmplitudeValue = amplitudeValue;
         invalidate();
+    }
+
+    public void setMoveSpeed (int pixel) {
+        mMoveSpeed = pixel;
     }
 
     private float computeOffsetY(int index) {

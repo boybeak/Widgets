@@ -1,5 +1,6 @@
 package com.nulldreams.widget;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -33,6 +34,10 @@ public class AmplitudeBezierView extends AmplitudeView {
     private float mUnitX = 0;
 
     private PointF[] mPoints = null;
+
+    private int mAmplitudeValue;
+
+    private ObjectAnimator animator;
 
     public AmplitudeBezierView(Context context) {
         this(context, null);
@@ -82,7 +87,7 @@ public class AmplitudeBezierView extends AmplitudeView {
 
         for (int i = 0; i < mPoints.length; i++) {
             mPoints[i].x = mStartX + i * mUnitX;
-            mPoints[i].y = mStartY + P[i % P.length] * 80;
+            mPoints[i].y = mStartY + P[i % P.length] * 0;
             Log.v(TAG, "onMeasure [" + i + "]" + " x=" + mPoints[i].x + " y=" + mPoints[i].y);
         }
     }
@@ -91,29 +96,42 @@ public class AmplitudeBezierView extends AmplitudeView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawOneBezier(canvas);
+        //invalidate();
     }
 
     private void drawOneBezier (Canvas canvas) {
         if (mOffset > getWidth()) {
-            Log.v(TAG, "drawOneBezier " + mOffset);
             mOffset = 0;
         }
         mPath.reset();
         mPath.moveTo(mPoints[0].x + mOffset, mPoints[0].y);
         for (int i = 1; i < mPoints.length; i += 2) {
-            mPath.quadTo(mPoints[i].x + mOffset, mPoints[i].y, mPoints[i + 1].x + mOffset, mPoints[i + 1].y);
+            mPath.quadTo(mPoints[i].x + mOffset, mPoints[i].y + computeOffsetY(i), mPoints[i + 1].x + mOffset, mPoints[i + 1].y + computeOffsetY(i + 1));
         }
         //mPath.close();
         canvas.drawPath(mPath, mPaint);
-        for (int i = 0; i < mPoints.length; i++) {
-            canvas.drawPoint(mPoints[i].x, mPoints[i].y, mPaint);
-        }
         mOffset += 12;
-        invalidate();
     }
 
     @Override
     public void onNewAmplitude(int amplitude) {
+        if (animator != null && animator.isRunning()) {
+            animator.cancel();
+        }
+        animator = ObjectAnimator.ofInt(this, "amplitudeValue", mAmplitudeValue, amplitude);
+        animator.setDuration(getPeriod());
+        animator.start();
         super.onNewAmplitude(amplitude);
+    }
+
+    public void setAmplitudeValue (int amplitudeValue) {
+        mAmplitudeValue = amplitudeValue;
+        invalidate();
+    }
+
+    private float computeOffsetY(int index) {
+        float offset = (float) Math.sqrt(mAmplitudeValue);
+        offset = Math.min(offset, (getHeight() - getPaddingBottom() - getPaddingTop()) / 2);
+        return offset * P[index % P.length];
     }
 }

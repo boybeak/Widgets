@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Shader;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -41,6 +43,12 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private ObjectAnimator animator;
 
+    private float mLineWidth, mHintLineWidth;
+
+    private int mLineColor, mHintLineColor;
+
+    private boolean showHintLine = false;
+
     public AmplitudeBezierView(Context context) {
         this(context, null);
     }
@@ -62,9 +70,16 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private void initAmplitudeBezierView (Context context, AttributeSet attrs) {
 
+        mPaint = new Paint();
+
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeBezierView);
         mKeyPointCount = array.getInt(R.styleable.AmplitudeBezierView_waveCount, 1) << 1;
         setMoveSpeed(array.getInt(R.styleable.AmplitudeBezierView_moveSpeed, 8));
+        setLineWidth(array.getDimensionPixelSize(R.styleable.AmplitudeBezierView_lineWidth, 4));
+        setLineColor(array.getColor(R.styleable.AmplitudeBezierView_lineColor, Color.DKGRAY));
+        setShowHintLine(array.getBoolean(R.styleable.AmplitudeBezierView_showHintLine, false));
+        setHintLineColor(array.getColor(R.styleable.AmplitudeBezierView_hintLineColor, Color.LTGRAY));
+        setHintLineWidth(array.getDimensionPixelSize(R.styleable.AmplitudeBezierView_hintLineWidth, 4));
         array.recycle();
 
         mPoints = new PointF[mKeyPointCount * 4 + 1];
@@ -74,11 +89,9 @@ public class AmplitudeBezierView extends AmplitudeView {
 
         mPath = new Path();
 
-        mPaint = new Paint();
-        mPaint.setColor(Color.BLACK);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(4);
+
     }
 
     @Override
@@ -91,14 +104,18 @@ public class AmplitudeBezierView extends AmplitudeView {
         for (int i = 0; i < mPoints.length; i++) {
             mPoints[i].x = mStartX + i * mUnitX;
             mPoints[i].y = mStartY + P[i % P.length] * 0;
-            Log.v(TAG, "onMeasure [" + i + "]" + " x=" + mPoints[i].x + " y=" + mPoints[i].y);
+            //Log.v(TAG, "onMeasure [" + i + "]" + " x=" + mPoints[i].x + " y=" + mPoints[i].y);
         }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawOneBezier(canvas);
+        if (isAttachedWithRecorder()) {
+            drawOneBezier(canvas);
+        } else if (showHintLine) {
+            drawHintLine(canvas);
+        }
         //invalidate();
     }
 
@@ -112,8 +129,17 @@ public class AmplitudeBezierView extends AmplitudeView {
             mPath.quadTo(mPoints[i].x + mOffset, mPoints[i].y + computeOffsetY(i), mPoints[i + 1].x + mOffset, mPoints[i + 1].y + computeOffsetY(i + 1));
         }
         //mPath.close();
+        mPaint.setColor(mLineColor);
+        mPaint.setStrokeWidth(mLineWidth);
         canvas.drawPath(mPath, mPaint);
         mOffset += mMoveSpeed;
+    }
+
+    private void drawHintLine (Canvas canvas) {
+        mPaint.setColor(mHintLineColor);
+        mPaint.setStrokeWidth(mHintLineWidth);
+        canvas.drawLine(mPoints[0].x, mPoints[0].y,
+                mPoints[mPoints.length - 1].x, mPoints[mPoints.length - 1].y, mPaint);
     }
 
     @Override
@@ -146,4 +172,31 @@ public class AmplitudeBezierView extends AmplitudeView {
         offset = Math.min(offset, (getHeight() - getPaddingBottom() - getPaddingTop()) / 2);
         return offset * P[index % P.length];
     }
+
+    public void setLineWidth (float width) {
+        mLineWidth = width;
+        if (mPaint != null) {
+            mPaint.setStrokeWidth(mLineWidth);
+        }
+    }
+
+    public void setLineColor (int color) {
+        mLineColor = color;
+    }
+
+    public void setShowHintLine (boolean show) {
+        showHintLine = show;
+        if (!isAttachedWithRecorder()) {
+            invalidate();
+        }
+    }
+
+    public void setHintLineColor (int hintLineColor) {
+        mHintLineColor = hintLineColor;
+    }
+
+    public void setHintLineWidth (float hintLineWidth) {
+        mHintLineWidth = hintLineWidth;
+    }
+
 }

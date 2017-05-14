@@ -17,6 +17,8 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        mavenCentral()
+        maven { url "https://dl.bintray.com/boybeak/nulldreams" }
     }
 }
 
@@ -27,7 +29,7 @@ task clean(type: Delete) {
 ext {
     compileSdkVersion=25
     buildToolsVersion="25.0.2"
-    minSdkVersion=14
+    minSdkVersion=15
     targetSdkVersion=25
 
     supportLibVersion='25.3.1'

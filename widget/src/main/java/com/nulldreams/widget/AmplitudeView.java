@@ -7,12 +7,9 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,7 +66,7 @@ abstract class AmplitudeView extends View {
     private void initAmplitudeView (Context context, @Nullable AttributeSet attrs) {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeView);
         setPeriod(array.getInt(R.styleable.AmplitudeView_period,
-                getContext().getResources().getInteger(R.integer.config_amplitude_period_default)));
+                getContext().getResources().getInteger(R.integer.config_period_default)));
         array.recycle();
         mAmpArray = new ArrayList<>();
     }

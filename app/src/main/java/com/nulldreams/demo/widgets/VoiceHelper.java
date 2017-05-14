@@ -2,7 +2,6 @@ package com.nulldreams.demo.widgets;
 
 import android.media.MediaRecorder;
 
-import java.io.File;
 import java.io.IOException;
 
 /**

@@ -22,8 +22,19 @@
     </declare-styleable>
 
     <declare-styleable name="AmplitudeBezierView">
-        <attr name="lineCount" format="integer|reference"/>
+        <attr name="showHintLine" format="boolean|reference"/>
+        <attr name="hintLineColor" format="color|reference"/>
+        <attr name="hintLineWidth" format="dimension|reference"/>
+        <attr name="lineColor" format="color|reference"/>
+        <attr name="lineWidth" format="dimension|reference"/>
         <attr name="waveCount" format="integer|reference"/>
         <attr name="moveSpeed" format="integer|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="VisualizerView">
+        <attr name="capturePeriod" format="integer|reference"/>
+        <attr name="captureSize" format="integer|reference"/>
+        <attr name="waveformEnable" format="boolean|reference"/>
+        <attr name="fftEnable" format="boolean|reference"/>
     </declare-styleable>
 </resources>

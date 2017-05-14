@@ -14,6 +14,8 @@
         android:background="@drawable/bg_outline_dark_gray"
         app:waveCount="2"
         app:moveSpeed="12"
+        app:showHintLine="true"
+        app:hintLineWidth="1dp"
         />
     <Button
         android:id="@+id/bezier_start"
@@ -21,5 +23,14 @@
         android:layout_height="wrap_content"
         android:text="@string/btn_start_record"
         android:onClick="voiceBtn"
+        />
+    <com.nulldreams.widget.VisualizerBarView
+        android:id="@+id/bezier_visualizer"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="24dp"
+        app:captureSize="128"
+        app:waveformEnable="true"
+        app:fftEnable="true"
         />
 </LinearLayout>

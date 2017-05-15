@@ -49,6 +49,18 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private boolean showHintLine = false;
 
+    private int mPlayingCursor;
+    private Runnable mPlayingRun = new Runnable() {
+        @Override
+        public void run() {
+            Amplitude amp = getAmplitude();
+            if (isPlaying() && amp != null) {
+                onNewAmplitude(amp.getAmplitudeArray()[mPlayingCursor++]);
+                postDelayed(this, getPeriod());
+            }
+        }
+    };
+
     public AmplitudeBezierView(Context context) {
         this(context, null);
     }
@@ -109,9 +121,21 @@ public class AmplitudeBezierView extends AmplitudeView {
     }
 
     @Override
+    public void startPlay() {
+        super.startPlay();
+        post(mPlayingRun);
+    }
+
+    @Override
+    public void stopPlay() {
+        super.stopPlay();
+        removeCallbacks(mPlayingRun);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (isAttachedWithRecorder()) {
+        if (isAttachedWithRecorder() || isPlaying()) {
             drawOneBezier(canvas);
         } else if (showHintLine) {
             drawHintLine(canvas);

@@ -55,8 +55,11 @@ public class AmplitudeBezierView extends AmplitudeView {
         public void run() {
             Amplitude amp = getAmplitude();
             if (isPlaying() && amp != null) {
-                onNewAmplitude(amp.getAmplitudeArray()[mPlayingCursor++]);
-                postDelayed(this, getPeriod());
+                int[] ampArray = amp.getAmplitudeArray();
+                if (mPlayingCursor < ampArray.length) {
+                    onNewAmplitude(amp.getAmplitudeArray()[mPlayingCursor++]);
+                    postDelayed(this, getPeriod());
+                }
             }
         }
     };

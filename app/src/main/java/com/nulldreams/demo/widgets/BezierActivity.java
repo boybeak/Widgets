@@ -17,7 +17,18 @@ public class BezierActivity extends AppCompatActivity {
     private AmplitudeBezierView mBezierView;
     private VisualizerBarView mVisualView;
 
-    private Button mStartStopBtn;
+    private Button mStartStopBtn, mPlayBtn;
+
+    private View.OnClickListener mListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mBezierView.isPlaying()) {
+                mBezierView.stopPlay();
+            } else {
+                mBezierView.startPlay();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +37,8 @@ public class BezierActivity extends AppCompatActivity {
 
         mBezierView = (AmplitudeBezierView)findViewById(R.id.bezier_view);
         mStartStopBtn = (Button)findViewById(R.id.bezier_start);
+        mPlayBtn = (Button)findViewById(R.id.bezier_play_start);
+        mPlayBtn.setOnClickListener(mListener);
 
         mVisualView = (VisualizerBarView)findViewById(R.id.bezier_visualizer);
     }
@@ -52,8 +65,8 @@ public class BezierActivity extends AppCompatActivity {
             mStartStopBtn.setText(R.string.btn_start_record);
         }
         if (mTargetFile != null) {
-            VoiceManager.getInstance(this).startPlay(mTargetFile.getAbsolutePath());
-            mVisualView.attachMediaSession(0);
+            /*VoiceManager.getInstance(this).startPlay(mTargetFile.getAbsolutePath());
+            mVisualView.attachMediaSession(0);*/
         }
     }
 

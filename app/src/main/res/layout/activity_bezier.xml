@@ -17,13 +17,25 @@
         app:showHintLine="true"
         app:hintLineWidth="1dp"
         />
-    <Button
-        android:id="@+id/bezier_start"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btn_start_record"
-        android:onClick="voiceBtn"
-        />
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/bezier_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_start_record"
+            android:onClick="voiceBtn"
+            />
+        <Button
+            android:id="@+id/bezier_play_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_play_amp_file"
+            android:onClick="voiceBtn"
+            />
+    </LinearLayout>
     <com.nulldreams.widget.VisualizerBarView
         android:id="@+id/bezier_visualizer"
         android:layout_width="match_parent"

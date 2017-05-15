@@ -71,7 +71,7 @@ public abstract class VisualizerView extends View {
 
     private void initVisualizerView (Context context, AttributeSet attrs) {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.VisualizerView);
-        mPeriod = array.getInt(R.styleable.VisualizerView_capturePeriod,
+        mPeriod = array.getInt(R.styleable.VisualizerView_period,
                 getContext().getResources().getInteger(R.integer.config_period_default));
         mCaptureSize = array.getInt(R.styleable.VisualizerView_captureSize, 128);
         isWaveformEnable = array.getBoolean(R.styleable.VisualizerView_waveformEnable, true);
@@ -103,7 +103,7 @@ public abstract class VisualizerView extends View {
         mVisualizer.setEnabled(true);
     }
 
-    public void deattachMediaSession () {
+    public void detachMediaSession() {
         mVisualizer.setEnabled(false);
         mVisualizer.release();
         mVisualizer = null;

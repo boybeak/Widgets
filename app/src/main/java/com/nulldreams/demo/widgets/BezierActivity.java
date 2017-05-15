@@ -1,9 +1,7 @@
 package com.nulldreams.demo.widgets;
 
-import android.media.audiofx.Visualizer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -64,7 +62,7 @@ public class BezierActivity extends AppCompatActivity {
         super.onDestroy();
         stopRecord();
         if (mVisualView.isAttachedWithMediaSession()) {
-            mVisualView.deattachMediaSession();
+            mVisualView.detachMediaSession();
         }
     }
 }

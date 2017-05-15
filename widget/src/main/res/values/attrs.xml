@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <attr name="period" format="integer|reference"/>
+
     <declare-styleable name="AmplitudeView">
-        <attr name="period" format="integer|reference"/>
+        <attr name="period"/>
     </declare-styleable>
 
     <declare-styleable name="AmplitudeBarView">
@@ -32,9 +34,13 @@
     </declare-styleable>
 
     <declare-styleable name="VisualizerView">
-        <attr name="capturePeriod" format="integer|reference"/>
+        <attr name="period"/>
         <attr name="captureSize" format="integer|reference"/>
         <attr name="waveformEnable" format="boolean|reference"/>
         <attr name="fftEnable" format="boolean|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="VisualizerBarView">
+        <attr name="skipCount" format="integer|reference"/>
     </declare-styleable>
 </resources>

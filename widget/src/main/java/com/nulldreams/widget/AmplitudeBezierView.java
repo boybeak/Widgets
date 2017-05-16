@@ -1,15 +1,15 @@
 package com.nulldreams.widget;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.Shader;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -41,7 +41,8 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private int mMoveSpeed = 8;
 
-    private ObjectAnimator animator;
+    private AnimatorSet mAnimSet;
+    private ObjectAnimator mAmpAnim, mColorAnim;
 
     private float mLineWidth, mHintLineWidth;
 
@@ -105,6 +106,9 @@ public class AmplitudeBezierView extends AmplitudeView {
         mPath = new Path();
 
         mPaint.setAntiAlias(true);
+        if (showHintLine) {
+            mPaint.setColor(mHintLineColor);
+        }
         mPaint.setStyle(Paint.Style.STROKE);
 
     }
@@ -124,6 +128,12 @@ public class AmplitudeBezierView extends AmplitudeView {
     }
 
     @Override
+    public Amplitude detachedMediaRecorder() {
+        animateBezierLine(0);
+        return super.detachedMediaRecorder();
+    }
+
+    @Override
     public void startPlay() {
         super.startPlay();
         post(mPlayingRun);
@@ -133,16 +143,19 @@ public class AmplitudeBezierView extends AmplitudeView {
     public void stopPlay() {
         super.stopPlay();
         removeCallbacks(mPlayingRun);
+        animateBezierLine(0);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (isAttachedWithRecorder() || isPlaying()) {
-            drawOneBezier(canvas);
+        drawOneBezier(canvas);
+        /*if (isAttachedWithRecorder() || isPlaying()) {
+
         } else if (showHintLine) {
-            drawHintLine(canvas);
-        }
+            drawOneBezier(canvas);
+            //animateBezierLine(0);
+        }*/
         //invalidate();
     }
 
@@ -156,33 +169,49 @@ public class AmplitudeBezierView extends AmplitudeView {
             mPath.quadTo(mPoints[i].x + mOffset, mPoints[i].y + computeOffsetY(i), mPoints[i + 1].x + mOffset, mPoints[i + 1].y + computeOffsetY(i + 1));
         }
         //mPath.close();
-        mPaint.setColor(mLineColor);
+        //mPaint.setColor(mLineColor);
         mPaint.setStrokeWidth(mLineWidth);
         canvas.drawPath(mPath, mPaint);
         mOffset += mMoveSpeed;
     }
 
-    private void drawHintLine (Canvas canvas) {
+    /*private void drawHintLine (Canvas canvas) {
         mPaint.setColor(mHintLineColor);
         mPaint.setStrokeWidth(mHintLineWidth);
         canvas.drawLine(mPoints[0].x, mPoints[0].y,
                 mPoints[mPoints.length - 1].x, mPoints[mPoints.length - 1].y, mPaint);
-    }
+    }*/
 
     @Override
     public void onNewAmplitude(int amplitude) {
-        if (animator != null && animator.isRunning()) {
-            animator.cancel();
-        }
-
-        if (animator == null) {
-            animator = ObjectAnimator.ofInt(this, "amplitudeValue", mAmplitudeValue, amplitude);
-        } else {
-            animator.setIntValues(mAmplitudeValue, amplitude);
-        }
-        animator.setDuration(getPeriod());
-        animator.start();
+        animateBezierLine(amplitude);
         super.onNewAmplitude(amplitude);
+    }
+
+    private void animateBezierLine (int amplitude) {
+        if (mAnimSet != null && mAnimSet.isRunning()) {
+            mAnimSet.cancel();
+        }
+        mAnimSet = new AnimatorSet();
+        if (mAmpAnim == null) {
+            mAmpAnim = ObjectAnimator.ofInt(this, "amplitudeValue", mAmplitudeValue, amplitude);
+        } else {
+            mAmpAnim.setIntValues(mAmplitudeValue, amplitude);
+        }
+        if (amplitude != getLastAmplitude() && showHintLine && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (amplitude > 0) {
+                mColorAnim = ObjectAnimator.ofArgb(mPaint, "color", mPaint.getColor(), mLineColor);
+            } else {
+                mColorAnim = ObjectAnimator.ofArgb(mPaint, "color", mPaint.getColor(), mHintLineColor);
+            }
+        }
+        AnimatorSet.Builder builder = mAnimSet.play(mAmpAnim);
+        if (mColorAnim != null) {
+            Log.v(TAG, "mColorAnim.isStarted=" + mColorAnim.isStarted() + " " + mColorAnim.isRunning()/* + " " + mColorAnim.isPaused()*/);
+            builder.with(mColorAnim);
+        }
+        mAnimSet.setDuration(getPeriod());
+        mAnimSet.start();
     }
 
     public void setAmplitudeValue (int amplitudeValue) {

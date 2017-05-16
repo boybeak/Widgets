@@ -47,9 +47,9 @@ public class AmplitudeBarView extends AmplitudeView {
     private long /*mPeriod = DEFAULT_PERIOD,*/ mMovePeriod = 20, mLastNewBarTime = 0,
             mMaxDuration = DEFAULT_MAX_DURATION;
 
-    private int mBarColor, mBarColorDark;
+    private int mBarColor = Color.LTGRAY, mBarColorDark = Color.DKGRAY;
 
-    private int mMaxValue, mMinValue, mAmpUnit = 1, mMaxAmp;
+    private int mMaxValue, mMinValue, mAmpUnit = 1, mMaxAmp = DEFAULT_AMP_MAX;
 
     private @Direction int mDirection = DIRECTION_LEFT_TO_RIGHT;
 
@@ -100,6 +100,9 @@ public class AmplitudeBarView extends AmplitudeView {
             setDirection(array.getInteger(R.styleable.AmplitudeBarView_direction, DIRECTION_LEFT_TO_RIGHT));
             setDebug(array.getBoolean(R.styleable.AmplitudeBarView_debug, false));
             array.recycle();
+        } else {
+            setBarWidth(barWidthDef);
+            setGapWidth(gapWidthDef);
         }
 
         mPaint = new Paint();
@@ -128,6 +131,7 @@ public class AmplitudeBarView extends AmplitudeView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        //Log.v(TAG, "onDraw isAttachedWithRecorder=" + isAttachedWithRecorder());
         if (isAttachedWithRecorder()) {
             drawBars(canvas);
             invalidate();
@@ -210,6 +214,7 @@ public class AmplitudeBarView extends AmplitudeView {
                 right = maxRight;
             }
             float bottom = getHeight() - getPaddingBottom();
+            float top = 0;
             if (offset == 0) {
                 float full = valueAt(i) * mHeightUnit;
                 float remain = full * ((float)deltaTime / getPeriod()) * 3.2f;
@@ -217,10 +222,12 @@ public class AmplitudeBarView extends AmplitudeView {
                     remain = full;
                 }
                 mPaint.setColor(mBarColorDark);
-                canvas.drawRect(left, bottom - remain, right, bottom, mPaint);
+                top = bottom - remain;
+                canvas.drawRect(left, top, right, bottom, mPaint);
             } else {
                 mPaint.setColor(mBarColor);
-                canvas.drawRect(left, bottom - (valueAt(i) * mHeightUnit), right, bottom, mPaint);
+                top = bottom - (valueAt(i) * mHeightUnit);
+                canvas.drawRect(left, top, right, bottom, mPaint);
             }
             if (debug) {
                 float b = (getHeight() - getPaddingBottom() - getPaddingTop()) / 2;

@@ -3,7 +3,7 @@
     package="com.nulldreams.demo.widgets">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:allowBackup="true"
@@ -19,12 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".WaveformActivity"
-            android:label="@string/title_activity_amplitude_bar"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".BezierActivity"
-            />
+        <activity android:name=".AmplitudeActivity"/>
     </application>
 
 </manifest>

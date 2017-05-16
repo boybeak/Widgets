@@ -2,6 +2,7 @@ package com.nulldreams.demo.widgets.module;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
+import android.view.View;
 
 /**
  * Created by boybe on 2017/5/4.
@@ -23,4 +24,5 @@ public class Index {
     public int getTitle() {
         return title;
     }
+
 }

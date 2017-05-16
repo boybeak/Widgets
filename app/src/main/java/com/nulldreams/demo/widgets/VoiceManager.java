@@ -115,7 +115,7 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
         mRecorder = null;
     }
 
-    public void startRecord (String path) {
+    public MediaRecorder startRecord (String path) {
         mRecorder = new MediaRecorder();
         //mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 14800, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_8BIT, 1024 * 128);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -135,9 +135,10 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             //TODO couldn't get audio focus
             Toast.makeText(getContext(), "startRecord result failed", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
         doRecord();
+        return mRecorder;
     }
 
     public void stopRecord () {
@@ -250,6 +251,8 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
     public interface OnRecordListener {
         void onRecordStart(String targetPath);
         void onRecording(String targetPath, MediaRecorder recorder, long currentDuration);
+        void onRecordPaused ();
+        void onRecordResumed ();
         void onRecordStop(String targetPath, long durationInMills);
     }
 
@@ -274,6 +277,8 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
     public interface OnPlayListener {
         void onPlayStart(VoiceManager voiceManager, MediaPlayer player);
         void onPlaying(VoiceManager voiceManager, String targetPath, MediaPlayer mp, long position);
+        void onPlayPaused ();
+        void onPlayResumed ();
         void onPlayStop(VoiceManager voiceManager);
     }
 }

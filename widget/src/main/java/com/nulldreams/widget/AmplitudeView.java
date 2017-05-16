@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
@@ -16,7 +17,7 @@ import java.util.List;
  * Created by gaoyunfei on 2017/5/7.
  */
 
-abstract class AmplitudeView extends View {
+public abstract class AmplitudeView extends View {
 
     private static final String TAG = AmplitudeView.class.getSimpleName();
 
@@ -42,7 +43,9 @@ abstract class AmplitudeView extends View {
 
     private Amplitude mAmp;
 
-    private boolean isPlaying = false;
+    private boolean isPlaying = false, isRecorderPaused = false;
+
+    private long mLastNewAmpTime = 0, mPauseAt;
 
     public AmplitudeView(Context context) {
         this(context, null);
@@ -73,6 +76,7 @@ abstract class AmplitudeView extends View {
 
     public void onNewAmplitude (int amplitude) {
         mLastAmplitude = amplitude;
+        mLastNewAmpTime = SystemClock.elapsedRealtime();
     }
 
     public int getLastAmplitude () {
@@ -97,6 +101,25 @@ abstract class AmplitudeView extends View {
         mAmpArray.clear();
         mRecorder = recorder;
         post(mAmpRun);
+    }
+
+    public void onMediaRecorderPaused () {
+        isRecorderPaused = true;
+        removeCallbacks(mAmpRun);
+        mPauseAt = SystemClock.elapsedRealtime();
+    }
+
+    public void onMediaRecorderResumed () {
+        isRecorderPaused = false;
+        if (mLastNewAmpTime > 0) {
+            postDelayed(mAmpRun, getPeriod() - (mPauseAt - mLastNewAmpTime));
+        } else {
+            post(mAmpRun);
+        }
+    }
+
+    public boolean isRecorderPaused () {
+        return isRecorderPaused;
     }
 
     public Amplitude detachedMediaRecorder () {
@@ -138,6 +161,14 @@ abstract class AmplitudeView extends View {
     public void startPlay () {
         isPlaying = true;
         invalidate();
+    }
+
+    public void pausePlay () {
+
+    }
+
+    public void resumePlay () {
+
     }
 
     public void stopPlay () {

@@ -8,9 +8,8 @@ import android.view.View;
 
 import com.nulldreams.adapter.AbsViewHolder;
 import com.nulldreams.adapter.DelegateAdapter;
-import com.nulldreams.demo.widgets.BezierActivity;
+import com.nulldreams.demo.widgets.AmplitudeActivity;
 import com.nulldreams.demo.widgets.R;
-import com.nulldreams.demo.widgets.WaveformActivity;
 import com.nulldreams.demo.widgets.module.Index;
 
 /**
@@ -41,10 +40,8 @@ public class IndexHolder extends AbsViewHolder<IndexDelegate> {
                 Class clz = null;
                 switch (index.getIcon()) {
                     case R.drawable.ic_chart_bar:
-                        clz = WaveformActivity.class;
-                        break;
                     case R.drawable.ic_chart_line:
-                        clz = BezierActivity.class;
+                        clz = AmplitudeActivity.class;
                         break;
                 }
                 if (clz != null) {

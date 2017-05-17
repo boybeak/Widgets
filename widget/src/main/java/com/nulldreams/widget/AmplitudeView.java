@@ -43,7 +43,7 @@ public abstract class AmplitudeView extends View {
 
     private Amplitude mAmp;
 
-    private boolean isPlaying = false, isRecorderPaused = false;
+    private boolean isPlayStarted = false, isRecorderPaused = false, isPlayPaused = false;
 
     private long mLastNewAmpTime = 0, mPauseAt;
 
@@ -159,25 +159,30 @@ public abstract class AmplitudeView extends View {
     }
 
     public void startPlay () {
-        isPlaying = true;
+        isPlayStarted = true;
         invalidate();
     }
 
     public void pausePlay () {
-
+        isPlayPaused = true;
     }
 
     public void resumePlay () {
-
+        isPlayPaused = false;
+        invalidate();
     }
 
     public void stopPlay () {
         //mAmp = null;
-        isPlaying = false;
+        isPlayStarted = false;
     }
 
-    public boolean isPlaying () {
-        return  mAmp != null && isPlaying;
+    public boolean isPlayStarted () {
+        return  mAmp != null && isPlayStarted;
+    }
+
+    public boolean isPlayPaused () {
+        return isPlayPaused;
     }
 
 }

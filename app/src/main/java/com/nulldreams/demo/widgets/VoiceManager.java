@@ -39,7 +39,7 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
     private long mStartTime = 0;
 
     private MediaPlayer mPlayer = null;
-    private boolean isPlaying = false;
+    private boolean isPlayStarted = false, isPlaying = false;
     private String mPlayPath = null;
     private OnPlayListener mPlayListener = null;
 
@@ -54,8 +54,8 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
         @Override
         public void onPrepared(MediaPlayer mp) {
             mp.start();
+            isPlayStarted = true;
             isPlaying = true;
-
             if (mPlayListener != null) {
                 mPlayListener.onPlayStart(VoiceManager.this, mp);
             }
@@ -97,10 +97,10 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
     private Runnable mPlayUpdateRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mPlayListener != null && isPlaying) {
+            if (mPlayListener != null && isPlayStarted) {
                 mPlayListener.onPlaying(VoiceManager.this, mPlayPath, mPlayer, mPlayer.getCurrentPosition());//TODO
             }
-            if (isPlaying) {
+            if (isPlayStarted) {
                 mUpdateHandler.postDelayed(this, 1000);
             }
         }
@@ -168,7 +168,7 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
         mStartTime = SystemClock.elapsedRealtime();
 
         if (mRecordListener != null) {
-            mRecordListener.onRecordStart(mRecordPath);
+            mRecordListener.onRecordStart(mRecordPath, mRecorder);
         }
         mUpdateHandler.post(mRecordUpdateRunnable);
     }
@@ -197,11 +197,32 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
         return mPlayPath;
     }
 
+    public void pausePlay () {
+        if (mPlayer != null) {
+            mPlayer.pause();
+            isPlaying = false;
+            if (mPlayListener != null) {
+                mPlayListener.onPlayPaused();
+            }
+        }
+    }
+
+    public void resumePlay () {
+        if (mPlayer != null) {
+            mPlayer.start();
+            isPlaying = true;
+            if (mPlayListener != null) {
+                mPlayListener.onPlayResumed();
+            }
+        }
+    }
+
     public void stopPlay () {
         mPlayer.stop();
         mPlayer.reset();
         mPlayer.release();
         mPlayer = null;
+        isPlayStarted = false;
         isPlaying = false;
         mPlayPath = null;
         mUpdateHandler.removeCallbacks(mPlayUpdateRunnable);
@@ -221,6 +242,10 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
         return isPlaying;
     }
 
+    public boolean isPlayStarted() {
+        return isPlayStarted;
+    }
+
     public boolean isRecording () {
         return isRecording;
     }
@@ -231,7 +256,7 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
             if (isRecording()) {
                 stopRecord();
             }
-            if (isPlaying()) {
+            if (isPlayStarted()) {
                 stopPlay();
             }
         }
@@ -249,7 +274,7 @@ public class VoiceManager extends AbsManager implements AudioManager.OnAudioFocu
     }
 
     public interface OnRecordListener {
-        void onRecordStart(String targetPath);
+        void onRecordStart(String targetPath, MediaRecorder recorder);
         void onRecording(String targetPath, MediaRecorder recorder, long currentDuration);
         void onRecordPaused ();
         void onRecordResumed ();

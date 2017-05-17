@@ -136,10 +136,9 @@ public class AmplitudeBarView extends AmplitudeView {
             drawBars(canvas);
             invalidate();
         } else if (hasAmplitude()) {
-            if (isPlaying()) {
+            if (isPlayStarted()) {
                 drawBars(canvas);
-                //Log.v(TAG, "onDraw mCursor=" + mCursor + " ampSize=" + getAmplitudeSize());
-                if (mCursor < getAmplitudeSize()) {
+                if (mCursor < getAmplitudeSize() && !isPlayPaused()) {
                     invalidate();
                 }
             } else {
@@ -161,11 +160,12 @@ public class AmplitudeBarView extends AmplitudeView {
             float top = bottom - valueAt(i) * mHeightUnit;
             if (mDirection == DIRECTION_LEFT_TO_RIGHT) {
                 left = getPaddingLeft() + (mGapWidth + mBarWidth) * offset + mGapWidth;
-                right = left + mBarWidth;
+                right = Math.min(left + mBarWidth, getWidth() - getPaddingRight());
             } else if (mDirection == DIRECTION_RIGHT_TO_LEFT) {
                 right = getWidth() - getPaddingRight()
                         - (mGapWidth + mBarWidth) * offset - mGapWidth;
-                left = right - mBarWidth;
+                left = Math.max(right - mBarWidth, getPaddingLeft());
+
             }
             canvas.drawRect(left, top, right, bottom, mPaint);
             offset++;
@@ -193,11 +193,11 @@ public class AmplitudeBarView extends AmplitudeView {
         }
 
         if (newBarDelta > getPeriod()) {
-            int exceptCursor = mCursor + 1;
-            if (isPlaying()) {
-                mCursor = exceptCursor;
+            int expectCursor = mCursor + 1;
+            if (isPlayStarted()) {
+                mCursor = expectCursor;
             } else {
-                mCursor = Math.min(exceptCursor, getAmplitudeSize() - 1);
+                mCursor = Math.min(expectCursor, getAmplitudeSize() - 1);
             }
             mLastNewBarTime = now;
         }

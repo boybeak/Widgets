@@ -1,12 +1,13 @@
 package com.nulldreams.demo.widgets;
 
-import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -42,16 +43,34 @@ public class AmplitudeActivity extends AppCompatActivity {
     private View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            VoiceManager voiceManager = VoiceManager.getInstance(AmplitudeActivity.this);
             switch (v.getId()) {
                 case R.id.btn_record_or_stop:
-                    if (mAmpView.isAttachedWithRecorder()) {
-                        mAmpView.detachedMediaRecorder();
+                    if (voiceManager.isRecording()) {
+                        voiceManager.stopRecord();
                     } else {
                         mLastPath = getRecordPath();
-                        MediaRecorder recorder = VoiceManager.getInstance(AmplitudeActivity.this).startRecord(mLastPath);
-                        mAmpView.attachMediaRecorder(recorder);
+                        voiceManager.startRecord(mLastPath);
                     }
                     v.setSelected(mAmpView.isAttachedWithRecorder());
+                    break;
+                case R.id.btn_play_or_pause:
+                    if (voiceManager.isPlayStarted()) {
+                        if (voiceManager.isPlaying()) {
+                            voiceManager.pausePlay();
+                        } else {
+                            voiceManager.resumePlay();
+                        }
+                    } else {
+                        if (!TextUtils.isEmpty(mLastPath)) {
+                            voiceManager.startPlay(mLastPath);
+                        }
+                    }
+                    break;
+                case R.id.btn_stop:
+                    if (voiceManager.isPlayStarted()) {
+                        voiceManager.stopPlay();
+                    }
                     break;
             }
         }
@@ -61,7 +80,69 @@ public class AmplitudeActivity extends AppCompatActivity {
 
     private FrameLayout mAmpLayout;
 
-    private AppCompatImageButton mRecordStartStopBtn;
+    private AppCompatImageButton mRecordStartStopBtn, mPlayPauseBtn;
+
+    private AppCompatTextView mTimeTv;
+
+    private VoiceManager.OnRecordListener mRecordListener = new VoiceManager.OnRecordListener() {
+        @Override
+        public void onRecordStart(String targetPath, MediaRecorder recorder) {
+            mSpinner.setEnabled(false);
+            mAmpView.attachMediaRecorder(recorder);
+        }
+
+        @Override
+        public void onRecording(String targetPath, MediaRecorder recorder, long currentDuration) {
+            mTimeTv.setText("" + (currentDuration / 1000));
+        }
+
+        @Override
+        public void onRecordPaused() {
+
+        }
+
+        @Override
+        public void onRecordResumed() {
+
+        }
+
+        @Override
+        public void onRecordStop(String targetPath, long durationInMills) {
+            mSpinner.setEnabled(true);
+            mAmpView.detachedMediaRecorder();
+        }
+    };
+
+    private VoiceManager.OnPlayListener mPlayListener = new VoiceManager.OnPlayListener() {
+        @Override
+        public void onPlayStart(VoiceManager voiceManager, MediaPlayer player) {
+            mAmpView.startPlay();
+            mPlayPauseBtn.setSelected(true);
+        }
+
+        @Override
+        public void onPlaying(VoiceManager voiceManager, String targetPath, MediaPlayer mp, long position) {
+            mTimeTv.setText("" + (position / 1000));
+        }
+
+        @Override
+        public void onPlayPaused() {
+            mAmpView.pausePlay();
+            mPlayPauseBtn.setSelected(false);
+        }
+
+        @Override
+        public void onPlayResumed() {
+            mAmpView.resumePlay();
+            mPlayPauseBtn.setSelected(true);
+        }
+
+        @Override
+        public void onPlayStop(VoiceManager voiceManager) {
+            mAmpView.stopPlay();
+            mPlayPauseBtn.setSelected(false);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +150,10 @@ public class AmplitudeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_amplitude);
 
         mAmpLayout = (FrameLayout)findViewById(R.id.view_layout);
+        mTimeTv = (AppCompatTextView)findViewById(R.id.record_time);
 
         mRecordStartStopBtn = (AppCompatImageButton)findViewById(R.id.btn_record_or_stop);
+        mPlayPauseBtn = (AppCompatImageButton)findViewById(R.id.btn_play_or_pause);
 
         mSpinner = (AppCompatSpinner)findViewById(R.id.spinner);
         mSpinnerAdapter = new SpinnerAdapter();
@@ -81,6 +164,10 @@ public class AmplitudeActivity extends AppCompatActivity {
         showAmpView(mSpinner.getSelectedItemPosition());
 
         mRecordStartStopBtn.setOnClickListener(mClickListener);
+        mPlayPauseBtn.setOnClickListener(mClickListener);
+
+        VoiceManager.getInstance(this).setOnRecordListener(mRecordListener);
+        VoiceManager.getInstance(this).setOnPlayListener(mPlayListener);
     }
 
     private void showAmpView (int position) {

@@ -352,6 +352,7 @@ public class AmplitudeBarView extends AmplitudeView {
 
     public void setDirection (@Direction int direction) {
         mDirection = direction;
+        invalidate();
     }
 
     public @Direction int getDirection () {

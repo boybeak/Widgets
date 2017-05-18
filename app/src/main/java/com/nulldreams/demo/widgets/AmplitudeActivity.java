@@ -8,10 +8,12 @@ import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 
 import com.nulldreams.demo.widgets.adapter.SpinnerAdapter;
 import com.nulldreams.demo.widgets.module.Index;
@@ -83,6 +85,10 @@ public class AmplitudeActivity extends AppCompatActivity {
     private AppCompatImageButton mRecordStartStopBtn, mPlayPauseBtn;
 
     private AppCompatTextView mTimeTv;
+
+    private ScrollView mSv;
+
+    private AmpPresenter mAp;
 
     private VoiceManager.OnRecordListener mRecordListener = new VoiceManager.OnRecordListener() {
         @Override
@@ -159,6 +165,8 @@ public class AmplitudeActivity extends AppCompatActivity {
         mSpinnerAdapter = new SpinnerAdapter();
         mSpinner.setAdapter(mSpinnerAdapter);
 
+        mSv = (ScrollView) findViewById(R.id.amplitude_pref_layout);
+
         mSpinner.setOnItemSelectedListener(mSpinnerListener);
 
         showAmpView(mSpinner.getSelectedItemPosition());
@@ -181,6 +189,10 @@ public class AmplitudeActivity extends AppCompatActivity {
                 barView.setMaxValue(100);
                 barView.setDebug(true);
                 mAmpView = barView;
+                View prefView = LayoutInflater.from(this).inflate(R.layout.layout_pref_amp_bar, null);
+                mSv.removeAllViews();
+                mSv.addView(prefView);
+                mAp = new AmpBarPresenter(barView, prefView);
                 break;
             case R.string.title_amplitude_bezier_view:
                 mAmpView = new AmplitudeBezierView(this);

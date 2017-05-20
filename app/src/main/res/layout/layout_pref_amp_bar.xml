@@ -1,32 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/holo_orange_light">
-    <android.support.v7.widget.AppCompatCheckBox
-        android:id="@+id/pref_debug_cb"
+    android:layout_height="wrap_content"
+    >
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_debug"
-        android:checked="true"/>
-    <RadioGroup
-        android:id="@+id/pref_rg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <android.support.v7.widget.AppCompatRadioButton
-            android:id="@+id/bar_left_to_right"
+        android:orientation="vertical">
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/pref_debug_cb"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/text_left_to_right"
+            android:layout_height="wrap_content"
+            android:text="@string/text_debug"
             android:checked="true"/>
-        <android.support.v7.widget.AppCompatRadioButton
-            android:id="@+id/bar_right_to_left"
+        <RadioGroup
+            android:id="@+id/pref_rg"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/text_right_to_left"/>
-    </RadioGroup>
-</LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/bar_left_to_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/text_left_to_right"
+                android:checked="true"/>
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/bar_right_to_left"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/text_right_to_left"/>
+        </RadioGroup>
+    </LinearLayout>
+</RelativeLayout>

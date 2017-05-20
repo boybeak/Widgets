@@ -46,7 +46,7 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     private float mLineWidth, mHintLineWidth;
 
-    private int mLineColor, mHintLineColor;
+    private int mLineColor = Color.DKGRAY, mHintLineColor = Color.LTGRAY;
 
     private boolean showHintLine = false;
 
@@ -88,19 +88,16 @@ public class AmplitudeBezierView extends AmplitudeView {
 
         mPaint = new Paint();
 
-        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeBezierView);
-        mKeyPointCount = array.getInt(R.styleable.AmplitudeBezierView_waveCount, 1) << 1;
-        setMoveSpeed(array.getInt(R.styleable.AmplitudeBezierView_moveSpeed, 8));
-        setLineWidth(array.getDimensionPixelSize(R.styleable.AmplitudeBezierView_lineWidth, 4));
-        setLineColor(array.getColor(R.styleable.AmplitudeBezierView_lineColor, Color.DKGRAY));
-        setShowHintLine(array.getBoolean(R.styleable.AmplitudeBezierView_showHintLine, false));
-        setHintLineColor(array.getColor(R.styleable.AmplitudeBezierView_hintLineColor, Color.LTGRAY));
-        setHintLineWidth(array.getDimensionPixelSize(R.styleable.AmplitudeBezierView_hintLineWidth, 4));
-        array.recycle();
-
-        mPoints = new PointF[mKeyPointCount * 4 + 1];
-        for (int i = 0; i < mPoints.length; i++) {
-            mPoints[i] = new PointF();
+        if (attrs != null) {
+            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.AmplitudeBezierView);
+            setWaveCount(array.getInt(R.styleable.AmplitudeBezierView_waveCount, 1));
+            setMoveSpeed(array.getInt(R.styleable.AmplitudeBezierView_moveSpeed, 8));
+            setLineWidth(array.getDimensionPixelSize(R.styleable.AmplitudeBezierView_lineWidth, 4));
+            setLineColor(array.getColor(R.styleable.AmplitudeBezierView_lineColor, Color.DKGRAY));
+            setShowHintLine(array.getBoolean(R.styleable.AmplitudeBezierView_showHintLine, false));
+            setHintLineColor(array.getColor(R.styleable.AmplitudeBezierView_hintLineColor, Color.LTGRAY));
+            setHintLineWidth(array.getDimensionPixelSize(R.styleable.AmplitudeBezierView_hintLineWidth, 4));
+            array.recycle();
         }
 
         mPath = new Path();
@@ -108,6 +105,8 @@ public class AmplitudeBezierView extends AmplitudeView {
         mPaint.setAntiAlias(true);
         if (showHintLine) {
             mPaint.setColor(mHintLineColor);
+        } else {
+            mPaint.setColor(mLineColor);
         }
         mPaint.setStyle(Paint.Style.STROKE);
 
@@ -171,6 +170,7 @@ public class AmplitudeBezierView extends AmplitudeView {
         //mPath.close();
         //mPaint.setColor(mLineColor);
         mPaint.setStrokeWidth(mLineWidth);
+        //Log.v(TAG, "drawOneBezier paint.color=" + mPaint.getColor());
         canvas.drawPath(mPath, mPaint);
         mOffset += mMoveSpeed;
     }
@@ -207,7 +207,6 @@ public class AmplitudeBezierView extends AmplitudeView {
         }
         AnimatorSet.Builder builder = mAnimSet.play(mAmpAnim);
         if (mColorAnim != null) {
-            Log.v(TAG, "mColorAnim.isStarted=" + mColorAnim.isStarted() + " " + mColorAnim.isRunning()/* + " " + mColorAnim.isPaused()*/);
             builder.with(mColorAnim);
         }
         mAnimSet.setDuration(getPeriod());
@@ -242,17 +241,32 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     public void setShowHintLine (boolean show) {
         showHintLine = show;
-        if (!isAttachedWithRecorder()) {
+        Log.v(TAG, "setShowHintLine isAttachedWithRecorder=" + isAttachedWithRecorder()
+                + " isPlayStarted=" + isPlayStarted() + " isPlayPaused=" + isPlayPaused());
+        if (!isAttachedWithRecorder() && isPlayStarted() && !isPlayPaused() && show) {
+            mPaint.setColor(mHintLineColor);
             invalidate();
         }
     }
 
     public void setHintLineColor (int hintLineColor) {
         mHintLineColor = hintLineColor;
+        if (!isAttachedWithRecorder() && isPlayStarted() && !isPlayPaused() && showHintLine) {
+            mPaint.setColor(mHintLineColor);
+            invalidate();
+        }
     }
 
     public void setHintLineWidth (float hintLineWidth) {
         mHintLineWidth = hintLineWidth;
+    }
+
+    public void setWaveCount (int count) {
+        mKeyPointCount = count << 1;
+        mPoints = new PointF[mKeyPointCount * 4 + 1];
+        for (int i = 0; i < mPoints.length; i++) {
+            mPoints[i] = new PointF();
+        }
     }
 
 }

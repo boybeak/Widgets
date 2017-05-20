@@ -2,9 +2,12 @@ package com.nulldreams.demo.widgets;
 
 import android.support.annotation.IdRes;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatEditText;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.nulldreams.widget.AmplitudeBarView;
 
@@ -50,6 +53,7 @@ public class AmpBarPresenter implements AmpPresenter {
 
         mRg.setOnCheckedChangeListener(mCheckListener);
         mDebugCb.setOnCheckedChangeListener(mDebugListener);
+
     }
 
 }

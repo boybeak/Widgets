@@ -330,6 +330,10 @@ public class AmplitudeBarView extends AmplitudeView {
         this.mBarColorDark = barColorDark;
     }
 
+    public int getBarColorDark () {
+        return this.mBarColorDark;
+    }
+
     public void setBarWidth(float barWidth) {
         this.mBarWidth = barWidth;
     }

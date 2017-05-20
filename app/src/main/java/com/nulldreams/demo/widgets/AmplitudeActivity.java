@@ -195,7 +195,11 @@ public class AmplitudeActivity extends AppCompatActivity {
                 mAp = new AmpBarPresenter(barView, prefView);
                 break;
             case R.string.title_amplitude_bezier_view:
-                mAmpView = new AmplitudeBezierView(this);
+                AmplitudeBezierView bezierView = new AmplitudeBezierView(this);
+                bezierView.setMoveSpeed(12);
+                bezierView.setShowHintLine(true);
+                bezierView.setWaveCount(2);
+                mAmpView = bezierView;
                 break;
         }
         if (mAmpView != null) {

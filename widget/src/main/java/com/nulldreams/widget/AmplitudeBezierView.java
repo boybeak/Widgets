@@ -139,6 +139,19 @@ public class AmplitudeBezierView extends AmplitudeView {
     }
 
     @Override
+    public void pausePlay() {
+        super.pausePlay();
+        removeCallbacks(mPlayingRun);
+        animateBezierLine(0);
+    }
+
+    @Override
+    public void resumePlay() {
+        super.resumePlay();
+        post(mPlayingRun);
+    }
+
+    @Override
     public void stopPlay() {
         super.stopPlay();
         removeCallbacks(mPlayingRun);
@@ -157,7 +170,6 @@ public class AmplitudeBezierView extends AmplitudeView {
         }*/
         //invalidate();
     }
-
     private void drawOneBezier (Canvas canvas) {
         if (mOffset > getWidth()) {
             mOffset = 0;
@@ -167,20 +179,10 @@ public class AmplitudeBezierView extends AmplitudeView {
         for (int i = 1; i < mPoints.length; i += 2) {
             mPath.quadTo(mPoints[i].x + mOffset, mPoints[i].y + computeOffsetY(i), mPoints[i + 1].x + mOffset, mPoints[i + 1].y + computeOffsetY(i + 1));
         }
-        //mPath.close();
-        //mPaint.setColor(mLineColor);
         mPaint.setStrokeWidth(mLineWidth);
-        //Log.v(TAG, "drawOneBezier paint.color=" + mPaint.getColor());
         canvas.drawPath(mPath, mPaint);
         mOffset += mMoveSpeed;
     }
-
-    /*private void drawHintLine (Canvas canvas) {
-        mPaint.setColor(mHintLineColor);
-        mPaint.setStrokeWidth(mHintLineWidth);
-        canvas.drawLine(mPoints[0].x, mPoints[0].y,
-                mPoints[mPoints.length - 1].x, mPoints[mPoints.length - 1].y, mPaint);
-    }*/
 
     @Override
     public void onNewAmplitude(int amplitude) {
@@ -241,9 +243,7 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     public void setShowHintLine (boolean show) {
         showHintLine = show;
-        Log.v(TAG, "setShowHintLine isAttachedWithRecorder=" + isAttachedWithRecorder()
-                + " isPlayStarted=" + isPlayStarted() + " isPlayPaused=" + isPlayPaused());
-        if (!isAttachedWithRecorder() && isPlayStarted() && !isPlayPaused() && show) {
+        if (!isAttachedWithRecorder() && !isPlayStarted() && !isPlayPaused() && show) {
             mPaint.setColor(mHintLineColor);
             invalidate();
         }
@@ -251,7 +251,7 @@ public class AmplitudeBezierView extends AmplitudeView {
 
     public void setHintLineColor (int hintLineColor) {
         mHintLineColor = hintLineColor;
-        if (!isAttachedWithRecorder() && isPlayStarted() && !isPlayPaused() && showHintLine) {
+        if (!isAttachedWithRecorder() && !isPlayStarted() && !isPlayPaused() && showHintLine) {
             mPaint.setColor(mHintLineColor);
             invalidate();
         }

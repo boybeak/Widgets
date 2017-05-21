@@ -200,10 +200,12 @@ public class AmplitudeActivity extends AppCompatActivity {
                 bezierView.setShowHintLine(true);
                 bezierView.setWaveCount(2);
                 mAmpView = bezierView;
+                mSv.removeAllViews();
                 break;
         }
         if (mAmpView != null) {
             mAmpLayout.removeAllViews();
+
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             );

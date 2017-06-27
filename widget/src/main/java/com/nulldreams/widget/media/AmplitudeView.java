@@ -1,4 +1,4 @@
-package com.nulldreams.widget;
+package com.nulldreams.widget.media;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.nulldreams.widget.R;
 
 import java.util.ArrayList;
 import java.util.List;

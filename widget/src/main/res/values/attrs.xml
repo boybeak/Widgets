@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="period" format="integer|reference"/>
+    <attr name="period" format="integer"/>
+    <attr name="gapWidth" format="dimension"/>
 
     <declare-styleable name="AmplitudeView">
         <attr name="period"/>
     </declare-styleable>
 
     <declare-styleable name="AmplitudeBarView">
+        <attr name="gapWidth"/>
         <attr name="barColor" format="color|reference"/>
         <attr name="barColorDark" format="color|reference"/>
         <attr name="barWidth" format="dimension|reference"/>
-        <attr name="gapWidth" format="dimension|reference"/>
+
         <attr name="direction" format="enum">
             <enum name="left_to_right" value="1"/>
             <enum name="right_to_left" value="-1"/>
@@ -42,5 +44,25 @@
 
     <declare-styleable name="VisualizerBarView">
         <attr name="skipCount" format="integer|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="MiniMonthView">
+        <attr name="titleTextColor" format="color"/>
+        <attr name="titleTextSize" format="dimension"/>
+        <attr name="weekTextColor" format="color"/>
+        <attr name="weekBarHeight" format="dimension"/>
+        <attr name="cellSize" format="dimension"/>
+        <attr name="thisMonthTextColor" format="color"/>
+        <attr name="otherMonthTextColor" format="color"/>
+        <attr name="gapWidth"/>
+        <attr name="showOtherMonth" format="boolean"/>
+        <attr name="todayTextColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="Chip">
+        <attr name="text" format="string"/>
+        <attr name="showImage" format="boolean"/>
+        <attr name="showAction" format="boolean"/>
+        <attr name="actionIcon" format="reference"/>
     </declare-styleable>
 </resources>

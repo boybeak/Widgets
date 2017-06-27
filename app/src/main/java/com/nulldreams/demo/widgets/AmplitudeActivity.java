@@ -17,9 +17,9 @@ import android.widget.ScrollView;
 
 import com.nulldreams.demo.widgets.adapter.SpinnerAdapter;
 import com.nulldreams.demo.widgets.module.Index;
-import com.nulldreams.widget.AmplitudeBarView;
-import com.nulldreams.widget.AmplitudeBezierView;
-import com.nulldreams.widget.AmplitudeView;
+import com.nulldreams.widget.media.AmplitudeBarView;
+import com.nulldreams.widget.media.AmplitudeBezierView;
+import com.nulldreams.widget.media.AmplitudeView;
 
 import java.io.File;
 

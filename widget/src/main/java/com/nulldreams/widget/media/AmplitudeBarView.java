@@ -1,4 +1,4 @@
-package com.nulldreams.widget;
+package com.nulldreams.widget.media;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -13,8 +13,9 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 
+
+import com.nulldreams.widget.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

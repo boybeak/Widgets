@@ -1,4 +1,4 @@
-package com.nulldreams.widget;
+package com.nulldreams.widget.media;
 
 import android.util.Log;
 
@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

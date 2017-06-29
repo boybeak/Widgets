@@ -20,4 +20,15 @@ public class WidgetUtils {
         return color;
     }
 
+    public static int fetchPrimaryColor(Context context) {
+        TypedValue typedValue = new TypedValue();
+
+        TypedArray a = context.obtainStyledAttributes(typedValue.data, new int[] { R.attr.colorPrimary });
+        int color = a.getColor(0, 0);
+
+        a.recycle();
+
+        return color;
+    }
+
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import com.nulldreams.adapter.AbsViewHolder;
 import com.nulldreams.adapter.DelegateAdapter;
 import com.nulldreams.demo.widgets.AmplitudeActivity;
+import com.nulldreams.demo.widgets.FeatureDiscoveryActivity;
 import com.nulldreams.demo.widgets.R;
 import com.nulldreams.demo.widgets.module.Index;
 
@@ -42,6 +43,9 @@ public class IndexHolder extends AbsViewHolder<IndexDelegate> {
                     case R.drawable.ic_chart_bar:
                     case R.drawable.ic_chart_line:
                         clz = AmplitudeActivity.class;
+                        break;
+                    case R.drawable.ic_disk:
+                        clz = FeatureDiscoveryActivity.class;
                         break;
                 }
                 if (clz != null) {

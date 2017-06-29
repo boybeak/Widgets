@@ -11,15 +11,13 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.nulldreams.adapter.DelegateAdapter;
 import com.nulldreams.adapter.DelegateParser;
 import com.nulldreams.adapter.impl.LayoutImpl;
 import com.nulldreams.demo.widgets.adapter.IndexDelegate;
 import com.nulldreams.demo.widgets.module.Index;
-import com.nulldreams.widget.Chip;
-
-import static com.nulldreams.widget.R.styleable.Chip;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new DelegateAdapter(this);
         mRv.setAdapter(mAdapter);
 
-    }
-
-    public void onClick (View view) {
-        ((com.nulldreams.widget.Chip)findViewById(R.id.chip)).getImageView().setImageResource(R.mipmap.ic_launcher_round);
     }
 
     @Override

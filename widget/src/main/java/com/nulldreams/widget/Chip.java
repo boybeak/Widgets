@@ -2,6 +2,7 @@ package com.nulldreams.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -93,6 +94,8 @@ public class Chip extends LinearLayout {
             mActionImageView.setImageDrawable(actionDrawable);
             int actionSize = getResources().getDimensionPixelSize(R.dimen.chip_action_size);
             int margin = getResources().getDimensionPixelSize(R.dimen.margin_4);
+
+            mActionImageView.setPadding(margin, margin, margin, margin);
 
             LayoutParams params = new LayoutParams(actionSize, actionSize);
             params.setMargins(margin, margin, margin, margin);

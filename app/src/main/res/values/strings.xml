@@ -3,6 +3,7 @@
     <string name="title_amplitude_bar_view">AmplitudeBarView</string>
     <string name="title_amplitude_bezier_view">AmplitudeBezierView</string>
     <string name="title_activity_amplitude_bar">AmplitudeBarActivity</string>
+    <string name="title_feature_discovery">FeatureDiscovery</string>
 
     <string name="text_left_to_right">Left -&gt; Right</string>
     <string name="text_right_to_left">Left &lt;- Right</string>

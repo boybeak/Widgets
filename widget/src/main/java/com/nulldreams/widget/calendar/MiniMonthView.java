@@ -32,7 +32,7 @@ public class MiniMonthView extends View {
     private static final DecimalFormat DATE_FORMAT = new DecimalFormat("00");
     private static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MM", Locale.getDefault());
 
-    private static final String[] WEEKS = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    private static final String[] WEEKS = {"S", "M", "T", "W", "T", "F", "S"};
 
     private String[] mDateStrArray = new String[42];
     private int mFirstDayIndex, mDayCount;
@@ -45,11 +45,13 @@ public class MiniMonthView extends View {
             mGridWidth, mGridHeight, mTodayColor;
 
     private int mRectColor = Color.argb(20, 20, 20, 20), mTitleTextColor, mWeekTextColor,
-            mCellTextColorPrimary = Color.BLACK, mCellTextColorSecondary = Color.LTGRAY;
+            mWeekendTextColor, mCellTextColorPrimary = Color.BLACK, mCellTextColorSecondary = Color.LTGRAY;
 
     private boolean showOtherMonth = false;
 
     private Rect mRect = new Rect();
+
+    private boolean isAttachedToWindow = false;
 
     public MiniMonthView(Context context) {
         this(context, null);
@@ -74,6 +76,7 @@ public class MiniMonthView extends View {
 
             setCellSize(array.getDimensionPixelSize(R.styleable.MiniMonthView_cellSize, mCellSize));
             setThisMonthColor(array.getColor(R.styleable.MiniMonthView_thisMonthTextColor, Color.BLACK));
+            setWeekendTextColor(array.getColor(R.styleable.MiniMonthView_weekendTextColor, mCellTextColorPrimary));
             setOtherMonthColor(array.getColor(R.styleable.MiniMonthView_otherMonthTextColor, Color.LTGRAY));
 
             setGapWidth(array.getDimensionPixelSize(R.styleable.MiniMonthView_gapWidth, mGapWidth));
@@ -94,6 +97,18 @@ public class MiniMonthView extends View {
         mCal = Calendar.getInstance();
         mCal.set(Calendar.DAY_OF_MONTH, 1);
         calculateDateArray();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        isAttachedToWindow = true;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        isAttachedToWindow = false;
     }
 
     @Override
@@ -192,7 +207,12 @@ public class MiniMonthView extends View {
                     float cy = top + radius;
                     canvas.drawCircle(cx, cy, radius, mPaint);*/
                 } else {
-                    mPaint.setColor(mCellTextColorPrimary);
+                    if (column == 0 || column == 6) {
+                        mPaint.setColor(mWeekendTextColor);
+                    } else {
+                        mPaint.setColor(mCellTextColorPrimary);
+                    }
+
                 }
             } else {
                 if (!showOtherMonth) {
@@ -307,12 +327,34 @@ public class MiniMonthView extends View {
         mCellSize = cellSize;
     }
 
+    private void setWeekendTextColor (int weekendTextColor) {
+        if (mWeekendTextColor == weekendTextColor) {
+            return;
+        }
+        mWeekendTextColor = weekendTextColor;
+        if (isAttachedToWindow) {
+            invalidate();
+        }
+    }
+
     private void setThisMonthColor (int thisMonthColor) {
+        if (mCellTextColorPrimary == thisMonthColor) {
+            return;
+        }
         mCellTextColorPrimary = thisMonthColor;
+        if (isAttachedToWindow) {
+            invalidate();
+        }
     }
 
     private void setOtherMonthColor (int otherMonthColor) {
+        if (mCellTextColorSecondary == otherMonthColor) {
+            return;
+        }
         mCellTextColorSecondary = otherMonthColor;
+        if (isAttachedToWindow) {
+            invalidate();
+        }
     }
 
     private void setGapWidth (int gapWidth) {
@@ -324,6 +366,12 @@ public class MiniMonthView extends View {
     }
 
     private void setTodayColor (int todayColor) {
+        if (mTodayColor == todayColor) {
+            return;
+        }
         mTodayColor = todayColor;
+        if (isAttachedToWindow) {
+            invalidate();
+        }
     }
 }

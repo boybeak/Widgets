@@ -54,6 +54,7 @@
         <attr name="cellSize" format="dimension"/>
         <attr name="thisMonthTextColor" format="color"/>
         <attr name="otherMonthTextColor" format="color"/>
+        <attr name="weekendTextColor" format="color"/>
         <attr name="gapWidth"/>
         <attr name="showOtherMonth" format="boolean"/>
         <attr name="todayTextColor" format="color"/>

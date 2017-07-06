@@ -32,7 +32,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-version = "0.0.5"
+version = "0.0.6"
 def siteUrl = 'https://github.com/boybeak/Widgets'
 def gitUrl = 'https://github.com/boybeak/Widgets.git'
 group = "com.github.boybeak"
